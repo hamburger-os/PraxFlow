@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible problem in a PraxFlow workflow, skill, pack, installer, or validator.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve PraxFlow. Please describe observed behavior separately from your theory about the cause.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Workflow
+        - Cognitive Skill
+        - Protocol
+        - Embedded pack
+        - Installer / adapter
+        - Validator / CI
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: package
+    attributes:
+      label: Package / file
+      description: If applicable, name the affected package or path.
+      placeholder: e.g. fix-bug, diagnose, packs/praxflow-embedded
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: What actually happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened, and what supports that expectation?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction or evidence
+      description: Provide a minimal reproduction when feasible; otherwise include logs, outputs, or a precise failure record.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Agent client, model if relevant, OS, project type, and other context needed to interpret the behavior.
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Suspected cause (optional)
+      description: Keep hypotheses separate from observed facts.
