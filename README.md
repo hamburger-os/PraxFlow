@@ -17,6 +17,19 @@
 
 </div>
 
+<p align="center">
+  <img src="assets/praxflow-banner.svg" alt="PraxFlow — engineering workflows for reliable AI agents" width="100%" />
+</p>
+
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="docs/concepts.md">Concepts</a> ·
+  <a href="evals/README.md">Evals</a> ·
+  <a href="case-studies/mcp2518fd-rtthread.md">Case study</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a> ·
+  <a href="SECURITY.md">Security</a>
+</p>
+
 ---
 
 ## Why PraxFlow?
@@ -76,11 +89,11 @@ See [`adapters/README.md`](adapters/README.md) for adapter details and manual in
 
 ## The model
 
-PraxFlow separates methodology from execution:
+PraxFlow separates methodology from environment execution.
 
 ```mermaid
 flowchart TD
-    G[User Goal] --> W[Workflow]
+    G[User goal] --> W[Workflow]
     W --> S1[Skill]
     W --> S2[Skill]
     W --> S3[Skill]
@@ -88,10 +101,10 @@ flowchart TD
     P -. constrain .-> S1
     P -. constrain .-> S2
     P -. constrain .-> S3
-    S1 --> C[Project Capabilities]
+    S1 --> C[Project capabilities]
     S2 --> C
     S3 --> C
-    C --> E[External Evidence]
+    C --> E[External evidence]
     E -->|feedback| W
 ```
 
@@ -106,14 +119,30 @@ Agent Skills are the **distribution format**. PraxFlow's Workflow/Skill distinct
 
 ## v0.1 Core
 
+Four Workflows share reusable Skills and Protocols, but deliberately keep different cognitive structures.
+
+```mermaid
+flowchart LR
+    U[User task] --> T{Task type}
+    T -->|new behavior| F[develop-feature]
+    T -->|wrong behavior| B[fix-bug]
+    T -->|need understanding| P[understand-project]
+    T -->|inspect a change| R[review-change]
+
+    F --> F1[Understand] --> F2[Clarify / design] --> F3[Bound change] --> F4[Review + verify]
+    B --> B1[Expected vs observed] --> B2[Diagnose cause] --> B3[Causal repair] --> B4[Regression verify]
+    P --> P1[Orient] --> P2[Survey] --> P3[Targeted trace] --> P4[Evidence-backed model]
+    R --> R1[Intent + scope] --> R2[Inspect] --> R3[Challenge findings] --> R4[High-signal review]
+```
+
 ### Workflows
 
-| Workflow | Cognitive path |
+| Workflow | Purpose |
 | --- | --- |
-| [`develop-feature`](workflows/develop-feature/) | Intent → understand → clarify → design → bounded change → review → verification |
-| [`fix-bug`](workflows/fix-bug/) | Symptom → expected behavior → characterize → competing hypotheses → causal fix → regression verification |
-| [`understand-project`](workflows/understand-project/) | Goal → orient → survey → targeted trace → evidence-backed working model |
-| [`review-change`](workflows/review-change/) | Intent → actual scope → inspect → challenge findings → high-signal review |
+| [`develop-feature`](workflows/develop-feature/) | Turn intent into a bounded design, implementation, review, and proportionate verification loop. |
+| [`fix-bug`](workflows/fix-bug/) | Move from symptom to expected behavior, causal diagnosis, bounded repair, and regression verification. |
+| [`understand-project`](workflows/understand-project/) | Build only the evidence-backed project model needed for the stated understanding goal. |
+| [`review-change`](workflows/review-change/) | Review a change against intent, actual scope, contracts, evidence, and domain risks with high-signal findings. |
 
 ### Cognitive skills
 
@@ -149,21 +178,36 @@ Embedded development is the first PraxFlow reference domain because it is a stro
 
 It deliberately **does not duplicate Core workflows**.
 
+See the first qualitative reference case: [`MCP2518FD on RT-Thread`](case-studies/mcp2518fd-rtthread.md).
+
 ## Project capabilities
 
-PraxFlow says **when and why** an external action is needed. The project says **how** to perform it.
+PraxFlow says **when and why** external action is needed. The project says **how** its environment performs it.
 
-```text
-PraxFlow: "This claim requires runtime verification."
-Project:  "Run pytest -q tests/integration/test_reconnect.py"
-
-PraxFlow: "The target behavior must be observed on hardware."
-Project:  "Flash with J-Link, then capture CAN + serial output."
+```mermaid
+flowchart LR
+    P[PraxFlow methodology<br/>WHEN + WHY] --> C[Project capability<br/>HOW]
+    C --> X[Build / test / deploy / flash / observe]
+    X --> E[External evidence]
+    E -->|supports or contradicts the claim| P
 ```
 
-Project-specific commands such as build, test, deploy, flash, serial, database access, and browser automation belong in project-owned documentation or project-specific Skills—not in PraxFlow Core.
+For example, PraxFlow may conclude that reconnect behavior needs runtime verification; the project capability defines the actual test command. PraxFlow may require target evidence; the embedded project defines the actual flash, serial, and bus-capture procedure.
+
+Project-specific commands belong in project-owned documentation or project-specific Skills—not in PraxFlow Core.
 
 See [`examples/embedded-project/PROJECT_CAPABILITIES.md`](examples/embedded-project/PROJECT_CAPABILITIES.md).
+
+## Evidence over promises
+
+PraxFlow's own development should follow the methodology it recommends.
+
+- [`evals/`](evals/) defines how methodology changes should be compared and recorded.
+- [`case-studies/`](case-studies/) contains inspectable engineering cases and explicitly separates qualitative evidence from controlled evals.
+- [`CHANGELOG.md`](CHANGELOG.md) records user-visible project changes.
+- [`docs/releasing.md`](docs/releasing.md) defines the evidence gate for pre-releases.
+
+The current MCP2518FD case is intentionally labeled **qualitative retrospective**. It is useful evidence for design pressure points, but not a numerical benchmark.
 
 ## Design principles
 
@@ -187,12 +231,13 @@ PraxFlow/
 ├── skills/         # Reusable cognitive skill packages
 ├── protocols/      # Cross-cutting methodology
 ├── packs/          # Domain packs; embedded is the first reference pack
+├── evals/          # Methodology evaluation framework and scenarios
+├── case-studies/   # Real engineering cases
 ├── adapters/       # Client installation notes
 ├── examples/       # Project capability examples
+├── assets/         # Brand / social assets
 ├── scripts/        # Installer and validator
-├── docs/           # Concepts and roadmap
-├── AGENTS.md       # Maintainer / agent instructions
-└── CLAUDE.md       # Claude Code entrypoint importing AGENTS.md
+└── docs/           # Concepts, roadmap, release and brand guidance
 ```
 
 ## Validate
@@ -211,13 +256,16 @@ PraxFlow is **pre-1.0** and intentionally opinionated. v0.1 is a testable baseli
 
 The current priority is to validate the four Core workflows against real engineering tasks and use observed failures to refine—or remove—abstractions. See [`docs/roadmap.md`](docs/roadmap.md).
 
-## Contributing
+## Contributing & community
 
 Contributions are welcome, especially when they include evidence from real usage.
 
-Before proposing a new Core Skill, ask whether it represents a genuinely reusable cognitive method or merely another verb that a capable agent already knows how to perform.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution and abstraction criteria.
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) — community expectations.
+- [`SECURITY.md`](SECURITY.md) — vulnerability reporting policy.
+- [`CHANGELOG.md`](CHANGELOG.md) — project history.
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Before proposing a new Core Skill, ask whether it represents a genuinely reusable cognitive method or merely another verb that a capable agent already knows how to perform.
 
 ## Compatibility references
 
