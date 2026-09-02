@@ -11,6 +11,24 @@ metadata:
 
 Move from a feature goal to a bounded, reviewed, evidence-backed implementation. Do not begin broad editing while key behavior or consequential tradeoffs are still unresolved.
 
+```mermaid
+flowchart TD
+    G[Goal] --> U[Understand relevant system]
+    U --> E[Establish evidence + constraints]
+    E --> C[Clarify consequential choices]
+    C --> D[Working design contract]
+    D --> A{Explicit approval required?}
+    A -->|Yes| H[Human decision]
+    A -->|No| P[Bound change]
+    H --> P
+    P --> X[Execute]
+    X --> R[Review]
+    R --> V[Verify]
+    V -->|Pass| K[Promote durable knowledge if needed]
+    V -->|Fail| Z[Diagnose]
+    Z --> P
+```
+
 ## Workflow
 
 ### 1. Establish the goal
@@ -149,14 +167,15 @@ Do not claim unperformed checks as passed.
 
 If verification fails:
 
-```text
-verification failure
--> diagnose
--> update causal/design model
--> revise change boundary
--> execute
--> review
--> verify
+```mermaid
+flowchart LR
+    F[Verification failure] --> D[Diagnose]
+    D --> M[Update causal / design model]
+    M --> P[Revise change boundary]
+    P --> X[Execute]
+    X --> R[Review]
+    R --> V[Verify]
+    V -->|fails again| D
 ```
 
 Do not blindly keep editing until tests happen to pass.
