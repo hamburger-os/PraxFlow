@@ -11,6 +11,21 @@ metadata:
 
 Do not patch the first suspicious location. Improve the causal model until the next action is supported by evidence.
 
+```mermaid
+flowchart TD
+    E[Expected vs observed] --> C[Characterize failure]
+    C --> R[Reproduce or capture]
+    R --> L[Localize]
+    L --> H[Competing hypotheses]
+    H --> X[Discriminating experiment]
+    X --> V[Collect evidence]
+    V --> U[Update hypothesis set]
+    U --> Q{Cause sufficiently supported?}
+    Q -->|No| X
+    Q -->|Yes| F[Bounded causal repair / handoff]
+    Q -->|Cannot test further| N[Stop with bounded next experiment]
+```
+
 ## Method
 
 ### 1. Establish expected versus observed behavior
@@ -59,8 +74,12 @@ If reproduction is impractical, obtain the strongest available failure record su
 
 Use targeted project understanding to narrow:
 
-```text
-system -> subsystem -> path -> state/lifecycle boundary -> condition
+```mermaid
+flowchart LR
+    A[System] --> B[Subsystem]
+    B --> C[Behavior path]
+    C --> D[State / lifecycle boundary]
+    D --> E[Triggering condition]
 ```
 
 Use `survey` or `trace` when available and useful.
