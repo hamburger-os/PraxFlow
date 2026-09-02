@@ -11,6 +11,22 @@ metadata:
 
 Build enough trustworthy understanding to answer the user's stated question. Do not treat full-repository reading or automatic architecture documentation as the default.
 
+```mermaid
+flowchart TD
+    G[Understanding goal] --> O[Orient cheaply]
+    O --> S[Survey relevant structure]
+    S --> Q[Identify high-value unknowns]
+    Q --> T[Targeted trace / investigation]
+    T --> M[Update provisional model]
+    M --> C{Sufficient for the stated goal?}
+    C -->|No| Q
+    C -->|Yes| E[Explain at the right level]
+    E --> K{Stable reusable knowledge?}
+    K -->|Yes| D[Update project-owned docs]
+    K -->|No| X[Done]
+    D --> X
+```
+
 ## Workflow
 
 ### 1. Establish the understanding goal
