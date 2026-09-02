@@ -11,6 +11,22 @@ metadata:
 
 Review whether the change correctly implements its intent without unacceptable collateral effects. Do not optimize for number of comments.
 
+```mermaid
+flowchart TD
+    I[Establish intent / review contract] --> S[Determine actual scope]
+    S --> C[Inspect diff + nearby context]
+    C --> D{Need deeper context?}
+    D -->|Yes| T[Survey / trace]
+    D -->|No| R[Apply Core + Domain review dimensions]
+    T --> R
+    R --> F[Form candidate findings]
+    F --> X[Try to falsify consequential findings]
+    X --> Q{Finding survives?}
+    Q -->|No| F
+    Q -->|Yes| V[Assess severity + impact]
+    V --> O[Produce high-signal review]
+```
+
 ## Workflow
 
 ### 1. Establish the review contract
