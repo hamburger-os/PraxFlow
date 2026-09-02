@@ -1,0 +1,28 @@
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+  categories:
+    - title: Workflows
+      labels:
+        - workflow
+    - title: Skills
+      labels:
+        - skill
+    - title: Protocols and methodology
+      labels:
+        - protocol
+        - methodology
+    - title: Domain packs
+      labels:
+        - domain-pack
+    - title: Compatibility and tooling
+      labels:
+        - compatibility
+        - tooling
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Other changes
+      labels:
+        - "*"
