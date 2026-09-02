@@ -1,0 +1,26 @@
+name: Validate PraxFlow
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Agent Skills packages
+        run: python3 scripts/validate.py
+      - name: Smoke-test installer
+        run: |
+          mkdir -p /tmp/praxflow-test-project
+          python3 scripts/install.py --target codex --scope project --dest /tmp/praxflow-test-project --pack praxflow-embedded
+          test -f /tmp/praxflow-test-project/.agents/skills/develop-feature/SKILL.md
+          test -f /tmp/praxflow-test-project/.agents/skills/diagnose/SKILL.md
+          test -f /tmp/praxflow-test-project/.agents/skills/praxflow-embedded/SKILL.md
