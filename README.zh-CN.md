@@ -17,6 +17,19 @@
 
 </div>
 
+<p align="center">
+  <img src="assets/praxflow-banner.svg" alt="PraxFlow — 面向可靠 AI Agent 的工程工作流" width="100%" />
+</p>
+
+<p align="center">
+  <a href="#快速开始">快速开始</a> ·
+  <a href="docs/concepts.md">核心概念</a> ·
+  <a href="evals/README.md">Evals</a> ·
+  <a href="case-studies/mcp2518fd-rtthread.md">案例</a> ·
+  <a href="CONTRIBUTING.md">贡献</a> ·
+  <a href="SECURITY.md">安全</a>
+</p>
+
 ---
 
 ## 为什么需要 PraxFlow？
@@ -106,14 +119,30 @@ Agent Skills 是 PraxFlow 的**分发格式**。PraxFlow 对 Workflow / Skill �
 
 ## v0.1 Core
 
+四个 Workflow 可以复用同一批 Skills / Protocols，但刻意保留不同的认知结构。
+
+```mermaid
+flowchart LR
+    U[用户任务] --> T{任务类型}
+    T -->|新增或改变行为| F[develop-feature]
+    T -->|行为错误| B[fix-bug]
+    T -->|需要理解系统| P[understand-project]
+    T -->|审查变更| R[review-change]
+
+    F --> F1[理解] --> F2[澄清 / 设计] --> F3[控制变更] --> F4[Review + 验证]
+    B --> B1[期望 vs 实际] --> B2[诊断原因] --> B3[因果修复] --> B4[回归验证]
+    P --> P1[定位] --> P2[Survey] --> P3[Targeted Trace] --> P4[证据支撑的模型]
+    R --> R1[意图 + 范围] --> R2[检查] --> R3[反证 Findings] --> R4[高信噪比 Review]
+```
+
 ### Workflows
 
-| Workflow | 认知路径 |
+| Workflow | 作用 |
 | --- | --- |
-| [`develop-feature`](workflows/develop-feature/) | 目标 → 理解 → 澄清 → 设计 → 控制变更 → Review → 验证 |
-| [`fix-bug`](workflows/fix-bug/) | 现象 → 期望行为 → 特征化 → 竞争假设 → 因果修复 → 回归验证 |
-| [`understand-project`](workflows/understand-project/) | 理解目标 → 定位 → Survey → Targeted Trace → 有证据支撑的工作模型 |
-| [`review-change`](workflows/review-change/) | 变更意图 → 实际范围 → 检查 → 反证 → 高信噪比 Review |
+| [`develop-feature`](workflows/develop-feature/) | 从目标走向受控设计、实现、Review 与比例化验证。 |
+| [`fix-bug`](workflows/fix-bug/) | 从现象走向期望行为、因果诊断、受控修复和回归验证。 |
+| [`understand-project`](workflows/understand-project/) | 只建立当前理解目标真正需要的、有证据支撑的项目模型。 |
+| [`review-change`](workflows/review-change/) | 根据意图、实际范围、契约、证据和领域风险输出高信噪比 Review。 |
 
 ### Cognitive Skills
 
@@ -147,23 +176,38 @@ Agent Skills 是 PraxFlow 的**分发格式**。PraxFlow 对 Workflow / Skill �
 - ISR/Thread 边界、DMA/Cache 一致性、Alignment、ABI、Memory Lifetime、Timing、Error Path 等嵌入式 Review 关注点；
 - 从静态检查、Build，到 Deploy/Flash、Target Execution、Device Observation 的验证策略。
 
+第一份定性案例见：[`MCP2518FD on RT-Thread`](case-studies/mcp2518fd-rtthread.md)。
+
 ## Project Capabilities
 
-PraxFlow 决定：**什么时候、为什么需要执行某项外部操作。**
+PraxFlow 决定：**什么时候、为什么需要某项外部操作。**
 
 具体项目决定：**这项操作到底怎么执行。**
 
-```text
-PraxFlow："这个结论需要运行时验证。"
-项目：    "执行 pytest -q tests/integration/test_reconnect.py"
-
-PraxFlow："必须在真实硬件上观察目标行为。"
-项目：    "J-Link 烧录，然后采集 CAN + 串口输出。"
+```mermaid
+flowchart LR
+    P[PraxFlow 方法论<br/>WHEN + WHY] --> C[Project Capability<br/>HOW]
+    C --> X[Build / Test / Deploy / Flash / Observe]
+    X --> E[External Evidence]
+    E -->|支持或推翻当前结论| P
 ```
+
+例如 PraxFlow 可以判断“重连行为需要运行时验证”；具体项目再定义真正的测试命令。PraxFlow 可以要求真实 Target Evidence；嵌入式项目再定义烧录、串口、总线抓取等具体方法。
 
 因此 build、test、deploy、flash、serial、database、browser automation 等具体命令应该属于项目自己的文档或项目级 Skills，而不是 PraxFlow Core。
 
 参考 [`examples/embedded-project/PROJECT_CAPABILITIES.md`](examples/embedded-project/PROJECT_CAPABILITIES.md)。
+
+## 用证据证明 PraxFlow，而不是只宣传 PraxFlow
+
+PraxFlow 自己也应该遵守它要求 Agent 遵守的方法：
+
+- [`evals/`](evals/) 定义方法论变化如何进行对照和记录；
+- [`case-studies/`](case-studies/) 保存真实工程案例，并明确区分定性证据和受控 Eval；
+- [`CHANGELOG.md`](CHANGELOG.md) 记录面向用户的变化；
+- [`docs/releasing.md`](docs/releasing.md) 定义 pre-release 的证据门槛。
+
+当前 MCP2518FD 案例明确标记为 **qualitative retrospective**。它能说明设计压力点，但不能冒充数值 Benchmark。
 
 ## 设计原则
 
@@ -186,13 +230,14 @@ PraxFlow/
 ├── workflows/      # 端到端 Workflow packages
 ├── skills/         # 可复用 Cognitive Skills
 ├── protocols/      # 横切工程方法
-├── packs/          # Domain Packs；当前 embedded 为第一参考实现
+├── packs/          # Domain Packs；embedded 为第一参考实现
+├── evals/          # 方法论 Eval 规范与场景
+├── case-studies/   # 真实工程案例
 ├── adapters/       # 客户端安装适配说明
 ├── examples/       # Project Capability 示例
+├── assets/         # Brand / Social assets
 ├── scripts/        # Installer / Validator
-├── docs/           # Concepts / Roadmap
-├── AGENTS.md       # Maintainer / Agent 维护规则
-└── CLAUDE.md       # Claude Code 入口
+└── docs/           # Concepts / Roadmap / Release / Brand
 ```
 
 ## 校验
@@ -213,13 +258,16 @@ v0.1 是一个可以被真实工程任务验证的基线，而不是已经冻结
 
 详见 [`docs/roadmap.md`](docs/roadmap.md)。
 
-## 贡献
+## 贡献与社区
 
 欢迎贡献，尤其欢迎带有真实使用证据的改进。
 
-在提出新的 Core Skill 之前，请先问：它是否真的是可以跨 Workflow 复用的独立认知方法，还是只是一个强 Agent 原本就会执行的普通动词？
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 贡献方式与抽象准入标准；
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) —— 社区行为规范；
+- [`SECURITY.md`](SECURITY.md) —— 安全漏洞报告方式；
+- [`CHANGELOG.md`](CHANGELOG.md) —— 项目变化记录。
 
-详见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
+在提出新的 Core Skill 之前，请先问：它是否真的是可以跨 Workflow 复用的独立认知方法，还是只是一个强 Agent 原本就会执行的普通动词？
 
 ## 兼容性参考
 
