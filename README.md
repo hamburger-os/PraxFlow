@@ -1,141 +1,199 @@
+<div align="center">
+
 # PraxFlow
 
-**Engineering workflows for reliable AI agents.**
+### Engineering workflows for reliable AI agents
 
-PraxFlow is an opinionated engineering methodology for AI agents, distributed as portable [Agent Skills](https://agentskills.io/). It is not a new agent runtime, a new Skill format, or a generic prompt collection.
+**Composable · Evidence-first · Human-guided · Reality-verified**
 
-The project focuses on a harder question:
+[English](README.md) · [简体中文](README.zh-CN.md)
 
-> How should an AI agent investigate, reason, decide, change, review, and verify work so that capability becomes reliable engineering practice?
+[![Validate PraxFlow](https://github.com/hamburger-os/PraxFlow/actions/workflows/validate.yml/badge.svg)](https://github.com/hamburger-os/PraxFlow/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-blue)](https://agentskills.io/)
+[![Status](https://img.shields.io/badge/status-pre--1.0-orange)](docs/roadmap.md)
 
-PraxFlow v0.1 deliberately starts with software engineering. Embedded development is the first reference domain because it stress-tests evidence quality, hard constraints, concurrency, build/deploy loops, and verification against the physical world.
+**Turn capable coding agents into disciplined engineering collaborators.**
 
-## Core model
+</div>
 
-PraxFlow has four conceptual building blocks:
+---
 
-- **Workflow** — an end-to-end cognitive loop for a class of goals.
-- **Skill** — a reusable cognitive method used by multiple workflows.
-- **Protocol** — cross-cutting rules for evidence, decisions, change scope, verification, and durable knowledge.
-- **Capability** — a concrete action provided by the current project or environment, such as build, test, deploy, flash, browser, serial, or database access.
+## Why PraxFlow?
 
-Agent Skills are the **distribution format**. A PraxFlow Workflow or Skill is packaged as a standards-compatible `SKILL.md` directory. The conceptual type is recorded in metadata.
+Modern coding agents can read repositories, edit files, run tools, and generate large amounts of code. The harder problem is not capability—it is **engineering discipline**.
 
-```text
-User Goal
-   |
-   v
-Workflow
-   |
-   +---- Skill
-   +---- Skill
-   +---- Skill
-   |
-Protocols
-   |
-   v
-Project Capabilities
-   |
-   v
-External Evidence
-   |
-   +---- feedback ----> Workflow
+PraxFlow is an opinionated methodology for AI agents, distributed as portable [Agent Skills](https://agentskills.io/). It helps agents decide:
+
+- what to investigate before acting;
+- which claims need evidence;
+- what the agent should decide itself and what should be escalated to a human;
+- how to bound a change before editing;
+- how to diagnose failures without locking onto the first plausible explanation;
+- what verification is strong enough to support a completion claim;
+- what knowledge should survive beyond the current conversation.
+
+PraxFlow is **not** a new agent runtime, a new Skill format, or a generic prompt collection.
+
+> **The goal is not to make an agent do more. The goal is to make the work it does more reliable.**
+
+## Quick start
+
+```bash
+git clone https://github.com/hamburger-os/PraxFlow.git
+cd PraxFlow
+
+# Install Core workflows + Core skills into a Codex-compatible project
+python3 scripts/install.py --target codex --scope project --dest /path/to/project
+
+# Add the embedded reference pack
+python3 scripts/install.py \
+  --target codex \
+  --scope project \
+  --dest /path/to/project \
+  --pack praxflow-embedded
 ```
 
-## v0.1 scope
+Also supported by the installer:
+
+```bash
+# Claude Code
+python3 scripts/install.py --target claude --scope project --dest /path/to/project
+
+# TRAE
+python3 scripts/install.py --target trae --scope project --dest /path/to/project
+```
+
+Current project-level discovery paths:
+
+| Client | Discovery path |
+| --- | --- |
+| Codex | `.agents/skills/` |
+| TRAE | `.agents/skills/` |
+| Claude Code | `.claude/skills/` |
+
+See [`adapters/README.md`](adapters/README.md) for adapter details and manual installation.
+
+## The model
+
+PraxFlow separates methodology from execution:
+
+```mermaid
+flowchart TD
+    G[User Goal] --> W[Workflow]
+    W --> S1[Skill]
+    W --> S2[Skill]
+    W --> S3[Skill]
+    P[Protocols] -. constrain .-> W
+    P -. constrain .-> S1
+    P -. constrain .-> S2
+    P -. constrain .-> S3
+    S1 --> C[Project Capabilities]
+    S2 --> C
+    S3 --> C
+    C --> E[External Evidence]
+    E -->|feedback| W
+```
+
+| Concept | Meaning |
+| --- | --- |
+| **Workflow** | An end-to-end cognitive loop for a class of goals. |
+| **Skill** | A reusable cognitive method used by multiple workflows. |
+| **Protocol** | Cross-cutting rules for evidence, decisions, change scope, verification, and durable knowledge. |
+| **Capability** | A concrete action provided by the current project or environment, such as build, test, deploy, flash, browser, serial, or database access. |
+
+Agent Skills are the **distribution format**. PraxFlow's Workflow/Skill distinction is conceptual; both can be packaged as standards-compatible `SKILL.md` directories.
+
+## v0.1 Core
 
 ### Workflows
 
-| Package | Purpose |
+| Workflow | Cognitive path |
 | --- | --- |
-| `develop-feature` | Turn a feature goal into a bounded design, implementation, review, and proportionate verification loop. |
-| `fix-bug` | Move from symptom to expected behavior, characterization, competing hypotheses, causal fix, and regression verification. |
-| `understand-project` | Build only the evidence-backed project model needed for the stated understanding goal. |
-| `review-change` | Review a change against intent, contracts, impact, evidence, and domain-specific risks with high-signal findings. |
+| [`develop-feature`](workflows/develop-feature/) | Intent → understand → clarify → design → bounded change → review → verification |
+| [`fix-bug`](workflows/fix-bug/) | Symptom → expected behavior → characterize → competing hypotheses → causal fix → regression verification |
+| [`understand-project`](workflows/understand-project/) | Goal → orient → survey → targeted trace → evidence-backed working model |
+| [`review-change`](workflows/review-change/) | Intent → actual scope → inspect → challenge findings → high-signal review |
 
 ### Cognitive skills
 
-| Package | Core question |
+| Skill | Core question |
 | --- | --- |
-| `survey` | Where should I look first? |
-| `trace` | How exactly does this behavior happen? |
-| `grill` | What genuinely needs to be decided before work can proceed? |
-| `diagnose` | Which causal explanation best fits the evidence, and how can I distinguish alternatives? |
-| `plan-change` | What is the smallest causal change boundary that addresses the goal without collateral work? |
+| [`survey`](skills/survey/) | Where should I look first? |
+| [`trace`](skills/trace/) | How exactly does this behavior happen? |
+| [`grill`](skills/grill/) | What genuinely needs to be decided before work can proceed? |
+| [`diagnose`](skills/diagnose/) | Which causal explanation best fits the evidence, and how can alternatives be distinguished? |
+| [`plan-change`](skills/plan-change/) | What is the smallest causal change boundary that addresses the goal without collateral work? |
 
-### Protocols
+`plan-change` is intentionally provisional in v0.1. If real usage shows that it adds little beyond ordinary agent planning, it should be removed rather than preserved for symmetry.
 
-- `evidence.md` — distinguish observations, sources, inferences, assumptions, unknowns, and conflicts.
-- `decisions.md` — resolve before asking; escalate consequential tradeoffs through decision gates.
-- `change-scope.md` — prefer minimal causal change, not merely minimal diff.
-- `verification.md` — completion claims require proportionate external verification.
-- `knowledge.md` — persist stable reusable knowledge, not transient reasoning history.
+### Core protocols
 
-### Reference domain pack
+| Protocol | Purpose |
+| --- | --- |
+| [`evidence`](protocols/evidence.md) | Separate observations, sources, inferences, assumptions, unknowns, and conflicts. |
+| [`decisions`](protocols/decisions.md) | Resolve before asking; escalate consequential decisions through decision gates. |
+| [`change-scope`](protocols/change-scope.md) | Prefer the smallest **causal** change, not merely the smallest diff. |
+| [`verification`](protocols/verification.md) | Match verification strength and cost to the risk and claim being made. |
+| [`knowledge`](protocols/knowledge.md) | Persist stable reusable knowledge, not transient reasoning history. |
 
-`packs/praxflow-embedded/` adds embedded-specific evidence policy, review concerns, and verification strategy without duplicating the Core workflows.
+## Reference domain: embedded systems
+
+Embedded development is the first PraxFlow reference domain because it is a strong stress test for engineering discipline: hardware facts are externally constrained, concurrency and lifetime errors matter, builds and deployments are real operations, and the physical target provides evidence that model reasoning cannot replace.
+
+[`packs/praxflow-embedded/`](packs/praxflow-embedded/) enriches Core with:
+
+- evidence policy for datasheets, errata, standards, SDK documentation, and reference implementations;
+- embedded review concerns such as ISR/thread boundaries, DMA/cache coherency, alignment, ABI, memory lifetime, timing, and error paths;
+- a verification ladder that can extend from static checks through build, deploy/flash, target execution, and device-level observation.
+
+It deliberately **does not duplicate Core workflows**.
+
+## Project capabilities
+
+PraxFlow says **when and why** an external action is needed. The project says **how** to perform it.
+
+```text
+PraxFlow: "This claim requires runtime verification."
+Project:  "Run pytest -q tests/integration/test_reconnect.py"
+
+PraxFlow: "The target behavior must be observed on hardware."
+Project:  "Flash with J-Link, then capture CAN + serial output."
+```
+
+Project-specific commands such as build, test, deploy, flash, serial, database access, and browser automation belong in project-owned documentation or project-specific Skills—not in PraxFlow Core.
+
+See [`examples/embedded-project/PROJECT_CAPABILITIES.md`](examples/embedded-project/PROJECT_CAPABILITIES.md).
 
 ## Design principles
 
-PraxFlow currently uses these working principles:
+1. **Evidence-first** — model memory is not an authoritative source.
+2. **Resolve before ask** — investigate what the agent can resolve before escalating questions to the user.
+3. **Human at consequential decisions** — human attention belongs at irreversible, high-impact, policy, compatibility, and engineering tradeoffs.
+4. **Goal-directed understanding** — read only as broadly and deeply as the current goal requires.
+5. **Minimal causal change** — fix the established cause without unrelated collateral work.
+6. **Challenge your own findings** — debugging and review should try to falsify the first plausible explanation.
+7. **Proportionate verification** — use the strongest relevant and economical external evidence justified by risk.
+8. **Durable knowledge over chat history** — persist only stable, reusable project knowledge.
+9. **Extract principles, not prescriptions** — tool-specific practices remain implementation choices unless the underlying problem is universal.
 
-1. **Spec-driven when consequences justify it.** A design artifact is a working contract, not a ritual or a chat transcript.
-2. **Evidence-first.** Model memory is not an authoritative source. Important claims should expose how they are known.
-3. **Skill-guided.** Reusable methods belong in Skills; concrete environment actions belong in project capabilities.
-4. **Reality-verified.** Do not equate generated output with completion. Use the strongest relevant and economical external verification available.
-5. **Resolve before ask.** Investigate code, docs, evidence, and constraints before asking the user questions the agent can answer itself.
-6. **Human at consequential decisions.** Human-in-the-loop should concentrate on irreversible, high-impact, policy, compatibility, and engineering tradeoffs—not every small step.
-7. **Goal-directed understanding.** Read as broadly and deeply as the current goal requires; do not archify a repository by default.
-8. **Challenge your own findings.** Debugging and review should actively seek evidence that can falsify the first plausible explanation.
-9. **Extract principles, not prescriptions.** Tool-specific practices are implementation choices unless the underlying problem is truly universal.
+Read the full conceptual model in [`docs/concepts.md`](docs/concepts.md).
 
 ## Repository layout
 
 ```text
 PraxFlow/
-├── workflows/                 # End-to-end workflow packages
-├── skills/                    # Reusable cognitive skill packages
-├── protocols/                 # Cross-cutting methodology
-├── packs/                     # Domain packs; embedded is the first reference pack
-├── adapters/                  # Installation and client notes
-├── examples/                  # Project capability examples
-├── scripts/                   # Installer and validator
-├── docs/                      # Concepts and roadmap
-├── AGENTS.md                  # Maintainer/agent instructions
-└── CLAUDE.md                  # Claude Code entrypoint importing AGENTS.md
+├── workflows/      # End-to-end workflow packages
+├── skills/         # Reusable cognitive skill packages
+├── protocols/      # Cross-cutting methodology
+├── packs/          # Domain packs; embedded is the first reference pack
+├── adapters/       # Client installation notes
+├── examples/       # Project capability examples
+├── scripts/        # Installer and validator
+├── docs/           # Concepts and roadmap
+├── AGENTS.md       # Maintainer / agent instructions
+└── CLAUDE.md       # Claude Code entrypoint importing AGENTS.md
 ```
-
-## Install
-
-PraxFlow keeps canonical packages under `workflows/`, `skills/`, and `packs/`. The installer flattens selected packages into the discovery directory expected by the target client.
-
-```bash
-# Clone
- git clone https://github.com/hamburger-os/PraxFlow.git
- cd PraxFlow
-
-# Install Core workflows + Core skills for a project
-python3 scripts/install.py --target codex --scope project --dest /path/to/project
-
-# Add the embedded domain pack
-python3 scripts/install.py --target codex --scope project --dest /path/to/project --pack praxflow-embedded
-
-# Claude Code
-python3 scripts/install.py --target claude --scope project --dest /path/to/project --pack praxflow-embedded
-
-# TRAE
-python3 scripts/install.py --target trae --scope project --dest /path/to/project --pack praxflow-embedded
-```
-
-Current project-level discovery paths:
-
-- **Codex:** `.agents/skills/`
-- **TRAE:** `.agents/skills/`
-- **Claude Code:** `.claude/skills/`
-
-These paths are client behavior, not part of the PraxFlow methodology. See `adapters/README.md` before changing adapters.
-
-You may also copy individual package directories manually, as long as each installed directory keeps its `SKILL.md` and supporting files together.
 
 ## Validate
 
@@ -143,30 +201,31 @@ You may also copy individual package directories manually, as long as each insta
 python3 scripts/validate.py
 ```
 
-The local validator checks the parts of the Agent Skills specification PraxFlow relies on: directory/name matching, required YAML frontmatter, allowed skill names, description presence/length, and duplicate package names. For normative validation, also use the Agent Skills reference validator (`skills-ref validate`).
+CI also runs the validator and an installer smoke test on every relevant push and pull request.
 
-## Project capabilities
+For normative Agent Skills validation, also use the Agent Skills reference validator (`skills-ref validate`).
 
-PraxFlow does not encode project-specific build, test, deploy, flash, or debug commands in Core Skills. Put those facts in project-owned documentation or project-specific skills. See `examples/embedded-project/PROJECT_CAPABILITIES.md`.
+## Project status
 
-The separation is intentional:
+PraxFlow is **pre-1.0** and intentionally opinionated. v0.1 is a testable baseline, not a frozen standard.
 
-```text
-PraxFlow says WHEN and WHY to verify.
-The project says HOW to build/test/deploy/observe.
-```
+The current priority is to validate the four Core workflows against real engineering tasks and use observed failures to refine—or remove—abstractions. See [`docs/roadmap.md`](docs/roadmap.md).
 
-## Status
+## Contributing
 
-PraxFlow is pre-1.0 and intentionally opinionated. The v0.1 artifacts are hypotheses to be tested against real projects. Concepts may be removed or renamed when implementation shows that they are redundant.
+Contributions are welcome, especially when they include evidence from real usage.
+
+Before proposing a new Core Skill, ask whether it represents a genuinely reusable cognitive method or merely another verb that a capable agent already knows how to perform.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Compatibility references
 
-- Agent Skills open specification: https://agentskills.io/specification
-- Claude Code Skills: https://code.claude.com/docs/en/skills
-- OpenAI Skills / Codex: https://learn.chatgpt.com/docs/build-skills
-- TRAE changelog (project Skills support, including `.agents/skills`): https://www.trae.ai/changelog
+- [Agent Skills open specification](https://agentskills.io/specification)
+- [Claude Code Skills](https://code.claude.com/docs/en/skills)
+- [OpenAI Skills / Codex](https://learn.chatgpt.com/docs/build-skills)
+- [TRAE changelog](https://www.trae.ai/changelog)
 
 ## License
 
-MIT. See `LICENSE`.
+[MIT](LICENSE)
