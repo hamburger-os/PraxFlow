@@ -1,0 +1,57 @@
+name: Methodology proposal
+description: Propose a change to PraxFlow's workflows, cognitive skills, protocols, or domain model.
+title: "[Proposal]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        PraxFlow prefers evidence from real usage over symmetry or feature count. Proposals should start from a concrete problem.
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Proposed layer
+      options:
+        - Workflow
+        - Cognitive Skill
+        - Protocol
+        - Domain Pack
+        - Adapter / tooling
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What recurring problem does the current design fail to solve well?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence from use
+      description: Describe real tasks, failures, friction, or comparisons that motivate the proposal.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the smallest useful change.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Could this be expressed using an existing workflow, skill, protocol, project capability, or domain policy instead?
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Abstraction check
+      options:
+        - label: I have considered whether this is merely a verb that a capable agent already knows how to perform.
+          required: true
+        - label: I have considered whether this belongs in a project or domain layer instead of PraxFlow Core.
+          required: true
