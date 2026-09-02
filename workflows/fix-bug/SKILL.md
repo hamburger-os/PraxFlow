@@ -11,6 +11,23 @@ metadata:
 
 Treat the reported symptom or proposed cause as a starting point, not as established root cause.
 
+```mermaid
+flowchart TD
+    S[Symptom] --> E[Establish expected vs observed]
+    E --> C[Characterize failure]
+    C --> R{Consequential ongoing risk?}
+    R -->|Yes| O[Contain]
+    R -->|No| P[Reproduce or capture]
+    O --> P
+    P --> L[Localize]
+    L --> D[Diagnose competing hypotheses]
+    D --> F[Plan causal repair]
+    F --> X[Execute]
+    X --> V[Review + regression verification]
+    V -->|Pass| K[Promote durable knowledge if needed]
+    V -->|Fail / contradictory evidence| D
+```
+
 ## Workflow
 
 ### 1. Establish expected versus observed behavior
@@ -63,8 +80,12 @@ Use `trace` when the failure depends on a call/event/data/state/lifecycle path.
 
 Narrow progressively:
 
-```text
-system -> subsystem -> path -> boundary/state -> condition
+```mermaid
+flowchart LR
+    A[System] --> B[Subsystem]
+    B --> C[Behavior path]
+    C --> D[Boundary / state]
+    D --> E[Triggering condition]
 ```
 
 ### 6. Diagnose causally
@@ -128,14 +149,15 @@ Choose checks proportionately to risk and available capabilities.
 
 If the fix fails verification or new evidence contradicts the cause:
 
-```text
-new evidence
--> diagnose again
--> update hypotheses/cause
--> revise fix plan
--> execute
--> review
--> verify
+```mermaid
+flowchart LR
+    E[New evidence] --> D[Diagnose again]
+    D --> H[Update hypotheses / cause]
+    H --> P[Revise fix plan]
+    P --> X[Execute]
+    X --> R[Review]
+    R --> V[Verify]
+    V -->|failure or contradiction| D
 ```
 
 Do not preserve a favored diagnosis merely because code has already been written for it.
