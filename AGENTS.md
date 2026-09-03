@@ -13,13 +13,63 @@ PraxFlow has four first-class concepts:
 
 Agent Skills (`SKILL.md`) are the distribution format. Do not confuse an Agent Skill package with the PraxFlow conceptual type `Skill`.
 
-All installable packages share one canonical distribution root:
+All installable PraxFlow packages share one canonical repository root:
 
 ```text
 skills/<package-name>/SKILL.md
 ```
 
-Do not create separate canonical `workflows/` or `packs/` trees. Conceptual type belongs in `metadata.praxflow-type`; filesystem layout exists for portable discovery.
+This is a **PraxFlow repository convention**, not a requirement of the Agent Skills specification. The specification defines what belongs inside a Skill directory; clients and repositories decide where Skill directories live. Do not create separate canonical `workflows/` or `packs/` trees. Conceptual type belongs in `metadata.praxflow-type`.
+
+## Documentation audiences and language
+
+Keep documentation separated by its primary consumer.
+
+### AI-facing material
+
+Use English by default for material that is loaded or followed by agents:
+
+- `AGENTS.md` and equivalent agent instructions;
+- `skills/*/SKILL.md`;
+- package-local `references/`;
+- package-local scripts, templates, and agent-facing resource text.
+
+Optimize this material for precise agent behavior, progressive disclosure, and portability rather than tutorial-style prose.
+
+### Human maintainer material
+
+Use Simplified Chinese by default for documentation whose main purpose is repository design, maintenance, release operation, or project administration for the primary maintainer. Examples include release procedures, repository settings, and internal design notes.
+
+Do not translate code identifiers, package names, commands, frontmatter keys, or normative external terminology when translation would make them harder to verify.
+
+### Community and user material
+
+Public user documentation may be English or bilingual. Major user entry points should provide an English version and a Simplified Chinese counterpart when practical.
+
+User documentation should explain:
+
+- what the mechanism is;
+- why it exists and the basic reasoning behind it;
+- when to use it and when not to;
+- how to install and use it;
+- what behavior or output to expect;
+- important limitations or compatibility boundaries.
+
+Keep human tutorials under `docs/` rather than duplicating them inside every installable package.
+
+### Skill package documentation boundary
+
+Do **not** add `README.md` to each `skills/<name>/` package by default. Agent Skills requires `SKILL.md`; `scripts/`, `references/`, `assets/`, and other files are optional supporting resources. A README is legal extra content but has no special role in the Agent Skills specification or activation model.
+
+Add package-local supporting documentation only when an agent needs it at runtime, normally under `references/`. Put human-oriented explanations, examples, and tutorials under `docs/`.
+
+When documenting format or discovery behavior, distinguish explicitly between:
+
+1. **Agent Skills specification requirements** — the portable package format and its defined fields/conventions;
+2. **PraxFlow repository conventions** — for example the canonical source catalog at `skills/*/SKILL.md` and `metadata.praxflow-type`;
+3. **client conventions or behavior** — for example `.agents/skills/`, `.claude/skills/`, installer flags, and vendor-specific extensions.
+
+Do not describe a PraxFlow or client convention as if it were mandated by the Agent Skills specification.
 
 ## v0.1 Core
 
@@ -75,24 +125,24 @@ Do not create Core Skills for ordinary execution verbs such as implement, edit, 
 
 Every installable package must contain `SKILL.md` with Agent Skills-compatible YAML frontmatter:
 
-- `name` must match its parent directory.
-- lowercase ASCII letters, digits, and hyphens only.
-- `description` must explain both purpose and trigger conditions.
-- use `metadata` for PraxFlow-specific conceptual type and version.
-- keep main instructions concise; move domain detail to `references/`.
+- `name` must match its parent directory;
+- use lowercase ASCII letters, digits, and single hyphens only;
+- `description` must explain both purpose and trigger conditions;
+- use `metadata` for PraxFlow-specific conceptual type and version;
+- keep main instructions concise; move on-demand detail to `references/`;
 - keep package identity and resources self-contained under `skills/<name>/`.
 
-The canonical repository layout is intentionally the standard flat catalog `skills/*/SKILL.md`. Do not require installer-specific recursive discovery to find first-class packages.
+PraxFlow deliberately publishes its source catalog as immediate children of `skills/` so common repository installers can discover packages without PraxFlow-specific recursion. Treat that layout as a PraxFlow interoperability choice, not as a universal Agent Skills filesystem requirement.
 
-Do not rely on vendor-specific frontmatter in Core packages unless it is optional and compatibility-safe. Optional root-level catalog metadata may improve presentation, but must not become required for package discovery or runtime behavior.
+Do not rely on vendor-specific frontmatter in Core packages unless it is optional and compatibility-safe. Optional root-level catalog metadata may improve presentation, but must not become required for package identity, discovery, or runtime behavior.
 
 ## Domain packs
 
 A Domain Pack may enrich:
 
-- evidence policy,
-- review policy,
-- verification strategy,
+- evidence policy;
+- review policy;
+- verification strategy;
 - domain-specific cognitive skills.
 
 It must not duplicate Core workflows or encode project-specific commands and architecture facts.
@@ -113,17 +163,23 @@ python3 scripts/validate.py
 
 Also inspect changed `SKILL.md` descriptions for trigger overlap and conceptual duplication. Passing syntax validation is not sufficient.
 
-Distribution-related changes must additionally preserve zero-special-case discovery from the standard `skills/*/SKILL.md` catalog. CI smoke-tests an external Agent Skills installer for this reason.
+Distribution-related changes must additionally preserve zero-special-case discovery from PraxFlow's flat `skills/*/SKILL.md` source catalog. CI smoke-tests an external Agent Skills installer for this reason.
 
 ## Documentation changes
 
 When the conceptual model changes, update at least:
 
-- `README.md`
-- `README.zh-CN.md`
-- `docs/concepts.md`
-- affected packages under `skills/`
-- `docs/roadmap.md` if scope changes
+- `README.md`;
+- `README.zh-CN.md`;
+- `docs/concepts.md`;
+- `docs/concepts.zh-CN.md`;
+- affected packages under `skills/`;
+- `docs/roadmap.md` and `docs/roadmap.zh-CN.md` if scope changes.
+
+When public installation or usage behavior changes, update both user guides:
+
+- `docs/getting-started.md`;
+- `docs/getting-started.zh-CN.md`.
 
 When distribution behavior changes, also update `adapters/README.md`, installer/validator tests, and release guidance when relevant.
 

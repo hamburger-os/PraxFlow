@@ -46,19 +46,21 @@ Do not include:
 - copies of Core Workflows;
 - model/token selection policy that only reflects one organization.
 
-## Agent Skills format and repository layout
+## Agent Skills format and PraxFlow repository layout
 
-All installable packages live exactly one directory below the single canonical distribution root:
+The Agent Skills specification defines the contents of an individual Skill directory. At minimum, a package contains `SKILL.md`; `scripts/`, `references/`, `assets/`, and other supporting files are optional.
+
+PraxFlow additionally chooses one canonical **repository** source layout for interoperability and maintainability:
 
 ```text
 skills/<package-name>/SKILL.md
 ```
 
-Do not create separate top-level `workflows/` or `packs/` source trees. Workflow / Skill / Pack is a PraxFlow conceptual classification, not a filesystem discovery rule.
+This flat source catalog is a PraxFlow convention, not a requirement that the Agent Skills specification imposes on every repository or client. Do not create separate top-level `workflows/` or `packs/` source trees. Workflow / Skill / Pack is a PraxFlow conceptual classification, not a universal filesystem rule.
 
 Each package must contain `SKILL.md` and follow the Agent Skills open specification.
 
-At minimum:
+At minimum for PraxFlow packages:
 
 ```yaml
 ---
@@ -73,9 +75,29 @@ metadata:
 
 `name` must match the directory name. `metadata.praxflow-type` must be one of `workflow`, `skill`, or `pack`.
 
-Keep package resources self-contained. Put on-demand supporting material in `references/`, executable helpers in `scripts/`, and static resources in `assets/`. Prefer shallow relative references from `SKILL.md`.
+Keep package resources self-contained. Put on-demand supporting material that agents need at runtime in `references/`, executable helpers in `scripts/`, and static resources in `assets/`. Prefer shallow relative references from `SKILL.md`.
 
-The flat `skills/*/SKILL.md` catalog is deliberate: repository taxonomy belongs in metadata and catalog presentation, while installer discovery should stay on the lowest-common-denominator standard convention.
+Do **not** add a README to every Skill package by default. `README.md` is permitted as an extra file by the specification, but it has no special role in Skill discovery or activation. Human-oriented explanations, tutorials, principles, and usage examples belong under `docs/`; package-local documentation should exist because the agent needs it while executing the Skill.
+
+The flat `skills/*/SKILL.md` source catalog is deliberate: PraxFlow taxonomy belongs in metadata and catalog presentation, while the repository stays easy for common Agent Skills tooling to consume without PraxFlow-specific recursive discovery.
+
+## Documentation audiences
+
+Keep the primary reader explicit.
+
+- **AI-facing instructions and package resources:** English by default. This includes `AGENTS.md`, `skills/*/SKILL.md`, and package-local `references/`.
+- **Primary-maintainer operational/design documentation:** Simplified Chinese by default when the document mainly exists to support repository maintenance.
+- **Community and user documentation:** English or bilingual. Major user entry points should offer English and Simplified Chinese counterparts when practical.
+
+User documentation should explain both principles and usage: what the mechanism does, why it exists, when to use it, how to install/invoke it, what behavior to expect, and important limitations.
+
+When writing about compatibility, clearly distinguish:
+
+1. Agent Skills specification requirements;
+2. PraxFlow repository conventions;
+3. client-specific conventions and vendor behavior.
+
+Do not elevate a PraxFlow or client convention into a claim about the open specification.
 
 ## Protocol changes
 
@@ -121,15 +143,15 @@ Run:
 python3 scripts/validate.py
 ```
 
-For normative Agent Skills conformance, also run the pinned/reference `skills-ref validate` check used by CI when package format or content changes. CI additionally exercises Python 3.10 compatibility, the built-in installer, external standard-catalog installation, and Protocol/package synchronization.
+For normative Agent Skills conformance, also run the pinned/reference `skills-ref validate` check used by CI when package format or content changes. CI additionally exercises Python 3.10 compatibility, the built-in installer, external catalog installation, and Protocol/package synchronization.
 
-A package-format change should be considered incomplete if PraxFlow's own validator passes but a standards-compatible installer cannot discover `skills/<name>/SKILL.md` without a custom deep-search flag.
+A package-format or repository-distribution change is incomplete if PraxFlow's own validator passes but the supported external installer path cannot discover the intended `skills/<name>/SKILL.md` source catalog without a PraxFlow-specific workaround.
 
 ## Compatibility changes
 
 Client-specific installation paths and extensions belong under `adapters/` and `scripts/install.py`.
 
-Verify current vendor documentation before changing compatibility behavior. Do not turn vendor-specific extensions into Core requirements. Optional ecosystem metadata such as `skills.sh.json` may improve presentation, but canonical package identity must remain fully derivable from the standard `skills/*/SKILL.md` tree.
+Verify current vendor documentation before changing compatibility behavior. Do not turn vendor-specific extensions into Core requirements. Optional ecosystem metadata such as `skills.sh.json` may improve presentation, but canonical package identity must remain fully derivable from each package directory and its `SKILL.md`.
 
 ## Pull request scope
 

@@ -1,5 +1,7 @@
 # PraxFlow Concepts
 
+[English](concepts.md) · [简体中文](concepts.zh-CN.md)
+
 PraxFlow separates methodology from packaging and environment execution. This document is the conceptual reference for v0.1.
 
 ## Conceptual model
@@ -107,9 +109,15 @@ So `develop-feature/SKILL.md` is technically an Agent Skill package but conceptu
 
 PraxFlow records the conceptual type in `metadata.praxflow-type`.
 
-### Canonical package layout
+### What the Agent Skills specification defines
 
-Conceptual taxonomy and physical distribution are deliberately separate. Every installable unit uses the same lowest-common-denominator repository convention:
+The Agent Skills specification defines the internal shape of a Skill directory. At minimum it contains `SKILL.md`. Conventional optional resources include `scripts/`, `references/`, and `assets/`; additional files are also allowed.
+
+The specification does **not** require every repository to store packages under a top-level directory named `skills/`, and it does not mandate one universal client installation path.
+
+### PraxFlow canonical repository layout
+
+PraxFlow deliberately chooses one flat source catalog:
 
 ```text
 skills/
@@ -122,13 +130,25 @@ skills/
     └── references/
 ```
 
-There is no canonical `workflows/` or `packs/` package root. A standards-compatible installer should be able to discover the entire public catalog by scanning `skills/*/SKILL.md` without PraxFlow-specific recursion or path rules.
+There is no canonical `workflows/` or `packs/` package root in PraxFlow. This is a **PraxFlow repository convention** chosen so common repository installers can discover the public catalog without PraxFlow-specific recursive path rules.
 
 This choice has three consequences:
 
 1. **Portability wins over visual taxonomy.** Repository path depth must not become part of PraxFlow semantics.
 2. **Metadata carries conceptual type.** `metadata.praxflow-type` distinguishes `workflow`, `skill`, and `pack`.
 3. **Catalog presentation is optional.** Files such as `skills.sh.json` may group packages for humans or installer UIs, but runtime identity remains the package directory plus `SKILL.md`.
+
+### Human docs vs package resources
+
+PraxFlow does not add a `README.md` to every Skill package by default.
+
+A README is legal extra content under the Agent Skills specification, but it has no special discovery or activation role. Human-oriented concepts, tutorials, examples, and usage guides live under `docs/`. Package-local `references/` exist for material an agent may need to load during execution.
+
+This keeps the package optimized for progressive disclosure:
+
+1. catalog metadata (`name` + `description`);
+2. activated instructions (`SKILL.md`);
+3. supporting resources loaded only when needed.
 
 ## Domain Pack
 
@@ -206,3 +226,5 @@ PraxFlow v0.1 does not define:
 - a generic `verify` Skill.
 
 These can be reconsidered only when real usage produces evidence that the current structure is insufficient.
+
+For installation and practical usage, continue with [`getting-started.md`](getting-started.md).

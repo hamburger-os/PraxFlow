@@ -11,17 +11,16 @@
 [![Validate PraxFlow](https://github.com/hamburger-os/PraxFlow/actions/workflows/validate.yml/badge.svg)](https://github.com/hamburger-os/PraxFlow/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-blue)](https://agentskills.io/)
-[![Status](https://img.shields.io/badge/status-pre--1.0-orange)](docs/roadmap.md)
+[![Status](https://img.shields.io/badge/status-pre--1.0-orange)](docs/roadmap.zh-CN.md)
 
 **把“能力很强的 Coding Agent”变成“有工程纪律的协作者”。**
 
 <p>
   <a href="#快速开始">快速开始</a> ·
-  <a href="docs/concepts.md">核心概念</a> ·
-  <a href="evals/README.md">Evals</a> ·
+  <a href="docs/getting-started.zh-CN.md">使用指南</a> ·
+  <a href="docs/concepts.zh-CN.md">核心概念</a> ·
   <a href="case-studies/mcp2518fd-rtthread.md">案例</a> ·
-  <a href="CONTRIBUTING.md">贡献</a> ·
-  <a href="SECURITY.md">安全</a>
+  <a href="CONTRIBUTING.md">贡献</a>
 </p>
 
 </div>
@@ -36,15 +35,15 @@
 
 现代 Coding Agent 已经能够读取仓库、修改文件、运行工具并生成大量代码。真正困难的问题不再只是“它会不会做”，而是：**它能否按照可靠的工程方法做事。**
 
-PraxFlow 是一套面向 AI Agent 的、带明确工程取向的方法论，并通过可移植的 [Agent Skills](https://agentskills.io/) 进行分发。它帮助 Agent 判断：
+PraxFlow 是一套面向 AI Agent 的、有明确工程取向的方法论，并通过可移植的 [Agent Skills](https://agentskills.io/) 进行分发。它帮助 Agent 判断：
 
 - 动手之前应该调查什么；
 - 哪些结论必须有证据支撑；
-- 哪些事情 AI 可以自己决定，哪些必须交给人；
-- 修改代码前如何控制影响范围；
+- 哪些事情 AI 应该自己解决，哪些真正需要人的判断；
+- 修改代码前如何限定影响范围；
 - Debug 时如何避免过早锁定第一个“看起来合理”的原因；
-- 什么样的验证强度才足以支持“任务已完成”这个结论；
-- 哪些知识值得沉淀到长期项目记忆中。
+- 什么验证强度才足以支持“任务已完成”这个结论；
+- 哪些项目知识稳定到值得长期保存。
 
 PraxFlow **不是**新的 Agent Runtime、不是新的 Skill 格式，也不是一个通用 Prompt 合集。
 
@@ -52,250 +51,162 @@ PraxFlow **不是**新的 Agent Runtime、不是新的 Skill 格式，也不是�
 
 ## 快速开始
 
-最方便的安装方式是直接使用开放的 Agent Skills 生态，无需先 Clone 仓库，也不要求本地安装 Python：
+大多数用户直接使用 Agent Skills 生态 Installer：
 
 ```bash
 npx skills@latest add hamburger-os/PraxFlow
 ```
 
-安装器会让你选择需要的 Workflow、Cognitive Skill、可选 Domain Pack，以及希望安装到哪些 Coding Agent。
+在交互界面里选择需要的 Workflow、可复用 Cognitive Skills、可选 Domain Pack，以及目标 Coding Agent。
 
-已经明确知道要安装哪些 package 时，可以直接非交互安装：
+如果已经明确知道要安装什么：
 
 ```bash
 npx skills@latest add hamburger-os/PraxFlow \
   --skill develop-feature \
-  --skill diagnose \
+  --skill survey \
+  --skill trace \
+  --skill grill \
+  --skill plan-change \
   --agent codex \
   --yes
 ```
 
-GitHub CLI 也可以直接发现 PraxFlow 的标准 Skill Catalog：
+GitHub CLI 也提供 Agent Skill 安装能力：
 
 ```bash
 gh skill install hamburger-os/PraxFlow
 ```
 
-PraxFlow 所有可安装 package 都采用标准的扁平目录：
+完整的 package 选择、安装方式、实际使用示例、预期 Agent 行为和限制，见 **[PraxFlow 入门与使用指南](docs/getting-started.zh-CN.md)**。
 
-```text
-skills/<package-name>/SKILL.md
-```
+## PraxFlow 怎么工作
 
-Workflow、Cognitive Skill、Domain Pack 的区别记录在 `metadata.praxflow-type` 中，而不是编码进目录深度。这样仓库本身就是标准分发源，不需要 PraxFlow 专用的 discovery 规则，也不需要 `--full-depth`。
-
-### 高级 / 确定性安装器
-
-仓库仍保留 Python Installer，用于确定性安装 Core、显式加载 Domain Pack、自定义输出目录、Dry Run 和 PraxFlow 本地开发。该方式需要 **Python 3.10 或更高版本**：
-
-```bash
-git clone https://github.com/hamburger-os/PraxFlow.git
-cd PraxFlow
-
-# 将 Core Workflows + Core Skills 安装到 Codex 项目
-python3 scripts/install.py --target codex --scope project --dest /path/to/project
-
-# 加载嵌入式 Reference Pack
-python3 scripts/install.py \
-  --target codex \
-  --scope project \
-  --dest /path/to/project \
-  --pack praxflow-embedded
-```
-
-内置 Installer 当前使用的项目级发现目录：
-
-| 客户端 | Discovery Path |
-| --- | --- |
-| Codex | `.agents/skills/` |
-| TRAE | `.agents/skills/` |
-| Claude Code | `.claude/skills/` |
-
-具体分发方式、用户级安装和手工安装说明见 [`adapters/README.md`](adapters/README.md)。
-
-## 核心模型
-
-PraxFlow 把“如何工作”和“具体怎么执行”分开：
+PraxFlow 把方法论和环境执行分开：
 
 ```mermaid
 flowchart TD
     G[用户目标] --> W[Workflow]
-    W --> S1[Skill]
-    W --> S2[Skill]
-    W --> S3[Skill]
+    W --> S[可复用 Cognitive Skills]
     P[Protocols] -. 约束 .-> W
-    P -. 约束 .-> S1
-    P -. 约束 .-> S2
-    P -. 约束 .-> S3
-    S1 --> C[Project Capabilities]
-    S2 --> C
-    S3 --> C
-    C --> E[External Evidence]
+    P -. 约束 .-> S
+    S --> C[Project Capabilities]
+    C --> E[外部证据]
     E -->|反馈| W
 ```
 
 | 概念 | 含义 |
 | --- | --- |
 | **Workflow** | 针对一类目标的端到端认知闭环。 |
-| **Skill** | 可在多个 Workflow 中复用的独立认知方法。 |
-| **Protocol** | 横跨 Workflow / Skill 的行为与信息规则，例如证据、决策、变更范围、验证、长期知识。 |
+| **Skill** | 可以在多个 Workflow 中复用的独立认知方法。 |
+| **Protocol** | 横跨 Workflow / Skill 的证据、决策、变更范围、验证和长期知识规则。 |
 | **Capability** | 当前项目或环境提供的具体执行能力，例如 build、test、deploy、flash、browser、serial、database。 |
 
-Agent Skills 是 PraxFlow 的**分发格式**。PraxFlow 对 Workflow / Skill 的区分属于方法论概念层；所有可安装单元都以标准兼容的 `SKILL.md` package 形式放在 [`skills/`](skills/) 下。
+最重要的分层是：
 
-顶层 [`protocols/`](protocols/) 文件是维护者使用的规范性方法论参考，并不是独立安装的 Agent Skill package。可安装 package 会在自己的 `SKILL.md` 中携带运行时真正需要的 Protocol 行为，因此修改 Protocol 时必须在同一个变更中同步更新受影响的 package。
+> PraxFlow 决定一项工程动作 **什么时候做、为什么做**；具体项目和 Agent 环境决定 **怎么做**。
+
+完整模型见 **[PraxFlow 核心概念](docs/concepts.zh-CN.md)**。
 
 ## v0.1 Core
 
-四个 Workflow 可以复用同一批 Skills / Protocols，但刻意保留不同的认知结构。
-
-```mermaid
-flowchart LR
-    U[用户任务] --> T{任务类型}
-    T -->|新增或改变行为| F[develop-feature]
-    T -->|行为错误| B[fix-bug]
-    T -->|需要理解系统| P[understand-project]
-    T -->|审查变更| R[review-change]
-
-    F --> F1[理解] --> F2[澄清 / 设计] --> F3[控制变更] --> F4[Review + 验证]
-    B --> B1[期望 vs 实际] --> B2[诊断原因] --> B3[因果修复] --> B4[回归验证]
-    P --> P1[定位] --> P2[Survey] --> P3[Targeted Trace] --> P4[证据支撑的模型]
-    R --> R1[意图 + 范围] --> R2[检查] --> R3[反证 Findings] --> R4[高信噪比 Review]
-```
-
 ### Workflows
 
-| Workflow | 作用 |
+| Workflow | 适用目标 |
 | --- | --- |
-| [`develop-feature`](skills/develop-feature/) | 从目标走向受控设计、实现、Review 与比例化验证。 |
-| [`fix-bug`](skills/fix-bug/) | 从现象走向期望行为、因果诊断、受控修复和回归验证。 |
+| [`develop-feature`](skills/develop-feature/) | 新增或明显改变行为：理解 → 澄清/设计 → 控制范围 → 实现 → Review → 验证。 |
+| [`fix-bug`](skills/fix-bug/) | 错误行为：期望 vs 实际 → 诊断原因 → 因果修复 → 回归验证。 |
 | [`understand-project`](skills/understand-project/) | 只建立当前理解目标真正需要的、有证据支撑的项目模型。 |
-| [`review-change`](skills/review-change/) | 根据意图、实际范围、契约、证据和领域风险输出高信噪比 Review。 |
+| [`review-change`](skills/review-change/) | 根据意图、真实范围、契约、证据和领域风险输出高信噪比 Review。 |
 
-### Cognitive Skills
+### 可复用 Cognitive Skills
 
 | Skill | 核心问题 |
 | --- | --- |
-| [`survey`](skills/survey/) | 我应该先看哪里？ |
-| [`trace`](skills/trace/) | 这个行为到底是怎么发生的？ |
-| [`grill`](skills/grill/) | 真正需要在执行前明确的决策是什么？ |
-| [`diagnose`](skills/diagnose/) | 哪个因果解释最符合证据？怎样区分多个假设？ |
-| [`plan-change`](skills/plan-change/) | 什么是解决目标所需的最小因果变更边界？ |
+| [`survey`](skills/survey/) | 我应该先看哪里，调查应该扩展到多远？ |
+| [`trace`](skills/trace/) | 这个行为跨调用、数据、状态和生命周期到底是怎么发生的？ |
+| [`grill`](skills/grill/) | 哪些问题 Agent 能自己解决，哪些重要选择真的需要用户判断？ |
+| [`diagnose`](skills/diagnose/) | 哪个因果解释最符合证据，怎样区分其他可能性？ |
+| [`plan-change`](skills/plan-change/) | 解决目标所需的最小因果变更边界是什么？ |
 
-`plan-change` 在 v0.1 中是刻意保留的 provisional Skill。如果真实使用证明它只是普通 planning 的重复包装，就应该删除，而不是为了目录对称长期保留。
+`plan-change` 在 v0.1 中刻意保持 provisional；如果 Eval 证明它没有比普通 Agent planning 带来足够增益，就应该删除。
 
 ### Core Protocols
 
-| Protocol | 作用 |
-| --- | --- |
-| [`evidence`](protocols/evidence.md) | 区分观察、来源、推断、假设、未知和冲突。 |
-| [`decisions`](protocols/decisions.md) | 先解决再提问；关键决策通过 Decision Gate 上交给人。 |
-| [`change-scope`](protocols/change-scope.md) | 追求最小**因果变更**，而不是机械追求最小 diff。 |
-| [`verification`](protocols/verification.md) | 根据风险和结论强度匹配合理的验证强度与成本。 |
-| [`knowledge`](protocols/knowledge.md) | 沉淀稳定、可复用的项目知识，而不是保存所有临时推理过程。 |
+- [`evidence`](protocols/evidence.md) —— 区分 observation、source、inference、assumption、unknown 和 conflict。
+- [`decisions`](protocols/decisions.md) —— 先调查再提问；把真正重要的决策升级给人。
+- [`change-scope`](protocols/change-scope.md) —— 追求最小**因果变更**，而不是机械追求最小 diff。
+- [`verification`](protocols/verification.md) —— 让验证强度和成本与风险及最终 Claim 相匹配。
+- [`knowledge`](protocols/knowledge.md) —— 沉淀稳定可复用知识，而不是保存临时推理历史。
 
-## 第一个 Reference Domain：嵌入式
+## 第一个 Reference Domain：Embedded Systems
 
-嵌入式开发非常适合作为 PraxFlow 的第一块压力测试场：硬件事实受外部规范约束，并发、生命周期、时序等问题影响巨大；Build / Deploy 是真实操作；最终目标设备会给出模型推理无法替代的物理世界证据。
+[`praxflow-embedded`](skills/praxflow-embedded/) 是第一个 Reference Domain Pack。它在不复制 Core Workflow 的前提下，增加嵌入式领域特定的 Evidence、Review 和 Verification 策略。
 
-[`praxflow-embedded`](skills/praxflow-embedded/) 在不复制 Core Workflow 的前提下增加：
+它覆盖 Datasheet / Errata 等权威资料、ISR/Thread 边界、DMA/Cache 一致性、Alignment、ABI、Memory Lifetime、Timing、Error Path 和 Target-level Verification 等关注点。
 
-- 面向 Datasheet、Errata、正式标准、SDK 文档、Reference Implementation 的 Evidence Policy；
-- ISR/Thread 边界、DMA/Cache 一致性、Alignment、ABI、Memory Lifetime、Timing、Error Path 等嵌入式 Review 关注点；
-- 从静态检查、Build，到 Deploy/Flash、Target Execution、Device Observation 的验证策略。
+第一份定性参考案例见 **[MCP2518FD on RT-Thread](case-studies/mcp2518fd-rtthread.md)**。
 
-第一份定性案例见：[`MCP2518FD on RT-Thread`](case-studies/mcp2518fd-rtthread.md)。
+## Agent Skills 标准与 PraxFlow 仓库约定
 
-## Project Capabilities
-
-PraxFlow 决定：**什么时候、为什么需要某项外部操作。**
-
-具体项目决定：**这项操作到底怎么执行。**
-
-```mermaid
-flowchart LR
-    P[PraxFlow 方法论<br/>WHEN + WHY] --> C[Project Capability<br/>HOW]
-    C --> X[Build / Test / Deploy / Flash / Observe]
-    X --> E[External Evidence]
-    E -->|支持或推翻当前结论| P
-```
-
-例如 PraxFlow 可以判断“重连行为需要运行时验证”；具体项目再定义真正的测试命令。PraxFlow 可以要求真实 Target Evidence；嵌入式项目再定义烧录、串口、总线抓取等具体方法。
-
-因此 build、test、deploy、flash、serial、database、browser automation 等具体命令应该属于项目自己的文档或项目级 Skills，而不是 PraxFlow Core。
-
-参考 [`examples/embedded-project/PROJECT_CAPABILITIES.md`](examples/embedded-project/PROJECT_CAPABILITIES.md)。
-
-## 用证据证明 PraxFlow，而不是只宣传 PraxFlow
-
-PraxFlow 自己也应该遵守它要求 Agent 遵守的方法：
-
-- [`evals/`](evals/) 定义方法论变化如何进行对照和记录；
-- [`case-studies/`](case-studies/) 保存真实工程案例，并明确区分定性证据和受控 Eval；
-- [`CHANGELOG.md`](CHANGELOG.md) 记录面向用户的变化；
-- [`docs/releasing.md`](docs/releasing.md) 定义 pre-release 的证据门槛。
-
-当前 MCP2518FD 案例明确标记为 **qualitative retrospective**。它能说明设计压力点，但不能冒充数值 Benchmark。
-
-## 设计原则
-
-1. **Evidence-first** —— 模型记忆不是权威事实源。
-2. **Resolve before ask** —— 代码、文档和工具能够回答的问题，不应该先问用户。
-3. **Human at consequential decisions** —— 人的注意力应该集中在不可逆、高影响、策略、兼容性和真正的工程取舍上。
-4. **Goal-directed understanding** —— 只读到当前目标真正需要的广度和深度，不默认 Archify 整个仓库。
-5. **Minimal causal change** —— 修正已经建立的原因，不进行无关扩张。
-6. **Challenge your own findings** —— Debug 和 Review 都应该主动尝试推翻第一个合理解释。
-7. **Proportionate verification** —— 根据风险选择最强且合理经济的外部证据。
-8. **Durable knowledge over chat history** —— 长期知识应该脱离临时对话上下文。
-9. **Extract principles, not prescriptions** —— 工具特定做法只是实现选择，除非它背后的问题确实具有普适性。
-
-完整概念模型见 [`docs/concepts.md`](docs/concepts.md)。
-
-## 仓库结构
+一个最小 Agent Skill 是：
 
 ```text
-PraxFlow/
-├── skills/         # 唯一 canonical 可安装目录：Workflows、Cognitive Skills、Domain Packs
-├── protocols/      # 维护者使用的横切方法论参考
-├── evals/          # 方法论 Eval 规范与场景
-├── case-studies/   # 真实工程案例
-├── adapters/       # 客户端分发与安装说明
-├── examples/       # Project Capability 示例
-├── assets/         # Brand / Social assets
-├── scripts/        # 确定性 Installer / Validator
-└── docs/           # Concepts / Roadmap / Release / Brand
+skill-name/
+└── SKILL.md
 ```
 
-每个可安装 package 都必须正好位于 `skills/` 下一层。概念分类属于 metadata/catalog 信息，而不是目录语义。
+开放规范还约定了 `scripts/`、`references/`、`assets/` 等常见可选资源目录，同时允许其他额外文件。
 
-## 校验
+PraxFlow 自己选择下面这个 canonical **repository source layout**：
+
+```text
+skills/<package-name>/SKILL.md
+```
+
+这里需要明确区分：扁平 `skills/` catalog 是 **PraxFlow 的分发约定**。Agent Skills Specification 并没有要求所有仓库都必须使用一个名为 `skills/` 的顶层目录，也没有规定所有客户端必须使用同一个安装路径。
+
+Workflow / Skill / Domain Pack 的区别记录在 `metadata.praxflow-type`，不是 path depth 的语义。
+
+PraxFlow 也不会默认给每一个 Skill package 添加人类 README。给人的原理、教程、示例和使用说明统一放在 `docs/`；package 内的 `references/` 用于 Agent 执行时按需加载。
+
+## 文档
+
+- **[入门与使用](docs/getting-started.zh-CN.md)** / **[Getting Started](docs/getting-started.md)** —— 原理、package 选择、安装、使用和预期行为。
+- **[核心概念](docs/concepts.zh-CN.md)** / **[Concepts](docs/concepts.md)** —— 完整概念模型以及 package format 边界。
+- **[路线图](docs/roadmap.zh-CN.md)** / **[Roadmap](docs/roadmap.md)** —— 当前范围和 Eval 方向。
+- **[Client Adapters](adapters/README.md)** —— 安装路径和客户端兼容性边界。
+- **[Evals](evals/README.md)** —— 方法论评估框架。
+- **[Case Studies](case-studies/README.md)** —— 可检查的工程案例证据。
+
+仓库维护操作类文档（例如 Release Procedure、Repository Settings、Brand Guidance）主要使用简体中文，因为当前绝大部分维护工作由主要维护者完成。AI-facing 指令和可移植 Skill package 内容则保持英文优先，保证 Agent 可移植性。
+
+## 验证 PraxFlow Checkout
 
 ```bash
 python3 scripts/validate.py
 ```
 
-CI 会在 Python 3.10 和最新稳定版 Python 上运行 PraxFlow structural validator，使用固定版本的 Agent Skills reference validator 检查全部 `skills/*` package，覆盖内置 Installer，并通过外部 Agent Skills CLI 做真实安装 smoke test。
-
-本地也可以使用 Agent Skills reference validator（`skills-ref validate`）进行规范校验。
+CI 还会运行固定版本的 Agent Skills reference validator、Distribution / Installer smoke tests，以及 Protocol/package synchronization checks。
 
 ## 项目状态
 
-PraxFlow 当前仍是 **pre-1.0**，并且刻意保持明确的工程取向。v0.1 是可测试基线，不是冻结标准。
+PraxFlow 当前是 **pre-1.0**。v0.1 是一个可测试的 baseline，而不是冻结标准。
 
-当前重点是让四个 Core Workflow 经历真实工程任务，并根据观察到的失败继续精炼——必要时删除——现有抽象。详见 [`docs/roadmap.md`](docs/roadmap.md)。
+当前优先级是让四个 Core Workflows 在真实工程任务中接受检验，再根据观察到的失败来修改——或者删除——现有抽象。见 **[路线图](docs/roadmap.zh-CN.md)**。
 
 ## 贡献与社区
 
-欢迎贡献，尤其欢迎附带真实使用证据的贡献。
+欢迎贡献，尤其欢迎带有真实使用证据的改进。
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 贡献与抽象准入标准。
-- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) —— 社区行为规范。
-- [`SECURITY.md`](SECURITY.md) —— 安全问题报告方式。
-- [`CHANGELOG.md`](CHANGELOG.md) —— 项目变更历史。
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 贡献、package 和文档规则。
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) —— 社区规范。
+- [`SECURITY.md`](SECURITY.md) —— 漏洞报告。
+- [`CHANGELOG.md`](CHANGELOG.md) —— 项目历史。
 
-在提出新的 Core Skill 前，先判断它是否真的是可复用的认知方法，而不是“一个有能力的 Agent 本来就会执行的普通动词”。
+在提出一个新的 Core Skill 前，先确认它代表的是**真正可复用的认知方法**，而不是又给一个有能力的 Agent 本来就会执行的普通动作起了名字。
 
-## 兼容性参考
+## Compatibility References
 
 - [Agent Skills open specification](https://agentskills.io/specification)
 - [Agent Skills CLI](https://github.com/vercel-labs/skills)

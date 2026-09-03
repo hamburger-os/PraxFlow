@@ -1,6 +1,8 @@
 # PraxFlow Brand Guide
 
-PraxFlow should look like an engineering methodology, not a generic AI product.
+本文主要给 PraxFlow 维护者使用，因此默认使用简体中文；公开使用的英文 Tagline、Description 和品牌短语保持英文原文。
+
+PraxFlow 的视觉和文字应该让人感觉它是一套工程方法论，而不是一个泛化 AI 产品。
 
 ## Positioning
 
@@ -10,34 +12,34 @@ PraxFlow should look like an engineering methodology, not a generic AI product.
 
 ## Voice
 
-Prefer:
+优先使用：
 
-- concrete engineering language;
-- evidence over hype;
-- concise claims that can be tested;
-- explicit tradeoffs and limitations;
-- calm confidence.
+- 具体的工程语言；
+- Evidence，而不是 Hype；
+- 能够被验证的简洁 Claim；
+- 明确的 Tradeoff 和 Limitation；
+- 稳定、克制、自信的语气。
 
-Avoid:
+避免：
 
-- “ultimate”, “revolutionary”, “10x”, or similar hype;
-- implying that PraxFlow is a runtime or autonomous-agent platform;
-- anthropomorphic robot imagery as the primary identity;
-- vendor dependence in the core brand.
+- “ultimate”、“revolutionary”、“10x” 等夸张表达；
+- 暗示 PraxFlow 是 Runtime 或 Autonomous-agent Platform；
+- 把拟人化 Robot Image 当作主要品牌身份；
+- 让 Core Brand 依赖某一个 Vendor。
 
-## Visual direction
+## Visual Direction
 
-The canonical banner is [`../assets/praxflow-banner.svg`](../assets/praxflow-banner.svg).
+Canonical banner 是 [`../assets/praxflow-banner.svg`](../assets/praxflow-banner.svg)。
 
-Visual principles:
+视觉原则：
 
-- dark neutral background;
-- restrained blue / violet / green accents;
-- systems-diagram and feedback-loop motifs;
-- strong typography and whitespace;
-- one clear visual hierarchy rather than decorative density.
+- Dark neutral background；
+- 克制使用 blue / violet / green accent；
+- Systems diagram 和 feedback loop motif；
+- 强 Typography 和足够 whitespace；
+- 保持一个清楚的视觉层级，不用装饰性密度制造“高级感”。
 
-The visual metaphor is a closed engineering loop:
+核心视觉隐喻是一个闭合工程反馈环：
 
 ```mermaid
 flowchart LR
@@ -50,22 +52,22 @@ flowchart LR
     P -. constrain .-> S
 ```
 
-## Repository social preview
+## Repository Social Preview
 
-Use a 2:1 social image derived from the canonical banner. Recommended dimensions: **1280 × 640**.
+使用 canonical banner 导出的 2:1 social image。推荐尺寸：**1280 × 640**。
 
-The preview should contain only:
+Preview 只保留：
 
-- PraxFlow;
-- the tagline;
-- the four-word positioning line;
-- the workflow/evidence visual motif.
+- PraxFlow；
+- Tagline；
+- 四词 positioning line；
+- Workflow / Evidence 的视觉 motif。
 
-Do not include vendor logos or long feature lists.
+不要加入 Vendor Logo，也不要加入长 feature list。
 
-## Project description
+## Project Description
 
-Recommended GitHub Description:
+建议 GitHub Description：
 
 > Composable, evidence-first engineering workflows for reliable AI agents — packaged as portable Agent Skills.
 
@@ -87,4 +89,17 @@ trae
 embedded-systems
 ```
 
-Topics should stay descriptive. Do not add broad discovery bait that weakens the project's actual positioning.
+Topics 应保持描述性。不要为了 discoverability 添加会弱化项目真实定位的泛化关键词。
+
+## Documentation Voice
+
+面向用户的文档不仅要列 Feature 或安装命令，还应该解释：
+
+- 为什么这个机制存在；
+- 它试图避免什么典型失败；
+- 什么时候应该使用；
+- 用户应该怎样使用；
+- 可以期待什么行为变化；
+- 哪些边界仍然 experimental 或由 Client 决定。
+
+AI-facing `SKILL.md` 则应优先保证指令精确、可执行和上下文效率，不需要复制营销或教程式内容。

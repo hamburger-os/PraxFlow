@@ -1,20 +1,22 @@
-# Recommended GitHub Repository Settings
+# GitHub Repository Settings 建议
 
-This document records the repository settings PraxFlow should use for a polished public open-source project. These settings live in GitHub metadata and are intentionally kept separate from the methodology itself.
+本文主要供 PraxFlow 维护者使用，因此默认使用简体中文。它记录为了让 PraxFlow 作为公开 Open Source Project 保持清晰、可信和易维护，GitHub repository 应采用的设置。
+
+这些设置属于 GitHub metadata / repository administration，不属于 PraxFlow 方法论本身。
 
 ## About
 
 ### Description
 
-Use:
+建议保持：
 
 > Composable, evidence-first engineering workflows for reliable AI agents — packaged as portable Agent Skills.
 
-Keep the Description stable and vendor-neutral. Client compatibility belongs in Topics and adapters rather than the one-line positioning statement.
+Description 应稳定、简短、vendor-neutral。具体 Client compatibility 放在 Topics、README 和 adapters，而不是塞进一句定位描述里。
 
 ### Topics
 
-Recommended Topics:
+建议 Topics：
 
 ```text
 agent-skills
@@ -32,79 +34,85 @@ trae
 embedded-systems
 ```
 
-Avoid generic discovery bait such as `awesome`, `automation`, or `prompt-engineering` unless the project's actual scope changes.
+除非项目真实范围变化，否则不要为了流量加入 `awesome`、`automation`、`prompt-engineering` 这类弱化定位的泛化标签。
 
 ### Website
 
-Leave the website field empty until PraxFlow has a real documentation site or stable project domain. Do not point it to a placeholder landing page.
+在 PraxFlow 有正式文档站或稳定项目域名之前，Website 字段保持为空。不要指向临时 placeholder landing page。
 
-## Social preview
+## Social Preview
 
-Use a **1280 × 640** PNG derived from `assets/praxflow-banner.svg`.
+使用从 `assets/praxflow-banner.svg` 导出的 **1280 × 640** PNG。
 
-The preview should contain:
+Preview 建议包含：
 
-- PraxFlow;
-- `Engineering workflows for reliable AI agents`;
-- `Composable · Evidence-first · Human-guided · Reality-verified`;
-- the Goal → Workflow → Skills → Evidence feedback motif.
+- PraxFlow；
+- `Engineering workflows for reliable AI agents`；
+- `Composable · Evidence-first · Human-guided · Reality-verified`；
+- Goal → Workflow → Skills → Evidence feedback 的视觉结构。
 
-Do not add vendor logos.
+不要加入 Vendor Logo。
 
-GitHub path:
+GitHub 路径：
 
 ```text
 Settings → General → Social preview → Edit
 ```
 
-## General pull request settings
+## Pull Request 通用设置
 
-Recommended:
+建议：
 
-- **Allow squash merging:** on;
-- **Allow merge commits:** off once contributions begin;
-- **Allow rebase merging:** optional;
-- **Always suggest updating pull request branches:** on when available;
-- **Automatically delete head branches:** on.
+- **Allow squash merging:** on；
+- **Allow merge commits:** off；
+- **Allow rebase merging:** optional；
+- **Always suggest updating pull request branches:** on（可用时）；
+- **Automatically delete head branches:** on。
 
-Squash merging keeps methodology changes reviewable as one conceptual change while preserving detailed discussion in the pull request.
+Squash merging 比较适合 PraxFlow：一个方法论变更可以在 PR 讨论中保留完整过程，而 main history 最终仍然保持一个清晰的 conceptual change。
 
-## Main branch protection
+## `main` Branch Protection
 
-Protect `main` using a Ruleset or branch protection rule.
+使用 Ruleset 或 Branch Protection Rule 保护 `main`。
 
-Recommended baseline:
+建议 baseline：
 
-- require a pull request before merging;
-- allow **squash** as the merge method for protected `main`;
-- require the aggregate `Validate PraxFlow` status check;
-- require branches to be up to date when practical;
-- block force pushes;
-- block branch deletion;
-- require code-owner review only if CODEOWNERS becomes meaningful with multiple maintainers.
+- merge 前要求 Pull Request；
+- protected `main` 允许 **squash** merge；
+- 要求 aggregate `Validate PraxFlow` status check；
+- 实际可行时要求 branch up to date；
+- 禁止 force push；
+- 禁止 branch deletion；
+- 只有未来真的出现多维护者 CODEOWNERS 流程时，再要求 code-owner review。
 
-The `Validate PraxFlow` aggregate job is intentionally stable: it succeeds only after the Python compatibility/structural checks, pinned Agent Skills reference validation, installer smoke tests, and Protocol/package synchronization checks have all succeeded. Use that aggregate job as the branch-protection status context instead of individual matrix job names.
+`Validate PraxFlow` aggregate job 应保持稳定：只有 Python compatibility / structural checks、Agent Skills reference validation、external distribution smoke test、Installer smoke tests、Protocol/package synchronization 都成功后它才成功。Branch protection 应依赖这个 aggregate context，而不是依赖容易变化的 matrix job name。
 
-Do not enable approval rules that create ceremony without an actual second maintainer.
+不要在目前只有一个主要维护者时增加没有实际 Review 价值的 approval ceremony。
 
 ## Security
 
-Enable GitHub **Private vulnerability reporting** when available for the repository.
+Repository 支持时启用 GitHub **Private vulnerability reporting**。
 
-`SECURITY.md` intentionally asks reporters not to disclose exploitable vulnerabilities publicly. Once private reporting is enabled, keep the GitHub security UI as the preferred confidential channel.
+`SECURITY.md` 已经要求不要公开披露可利用漏洞。启用 private reporting 后，把 GitHub Security UI 作为首选 confidential channel。
 
 ## Discussions
 
-Do not enable Discussions merely for completeness. Enable it when there is enough community traffic that usage questions, design discussion, and examples are creating noise in Issues.
+不要为了“看起来完整”而提前启用 Discussions。
 
-Until then:
+只有当社区流量足够高，usage question、design discussion、example sharing 已经明显干扰 Issues 时，再考虑启用。
 
-- use Issues for reproducible defects and methodology proposals;
-- use Pull Requests for concrete changes;
-- keep speculative discussion out of the issue tracker when it has no actionable engineering question.
+在此之前：
+
+- Issues 用于 reproducible defect 和 methodology proposal；
+- Pull Requests 用于 concrete change；
+- 没有 actionable engineering question 的纯发散讨论不要占用 Issue tracker。
 
 ## Releases
 
-Do not publish a stable-looking `v0.1.0` only because the repository is organized.
+不要因为 repository 结构已经整理完成，就发布一个看起来像 stable 的 `v0.1.0`。
 
-Follow [`releasing.md`](releasing.md). The first public release should normally be a pre-release such as `v0.1.0-alpha.1` after representative real-world evaluations are recorded.
+按 [`releasing.md`](releasing.md) 的 Release Gate 执行。第一个公开 Release 应该通常是 `v0.1.0-alpha.1` 这类 pre-release，并且前提是已经记录 representative real-world evaluations。
+
+## 定期复查
+
+Repository administration 也属于会随 GitHub 产品变化的外部事实。修改这些建议之前，应重新检查当前 GitHub Settings / Rulesets / Security UI，而不是依赖旧截图或模型记忆。
