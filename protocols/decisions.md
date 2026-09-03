@@ -13,6 +13,20 @@ Before asking a question, determine whether the answer can be obtained by:
 
 Do not make the user act as a search engine for information the agent can investigate.
 
+```mermaid
+flowchart TD
+    U[Unresolved point] --> F{Can evidence or existing constraints resolve it?}
+    F -->|Yes| R[Resolve and continue]
+    F -->|No| C{Low-risk and reversible?}
+    C -->|Yes| D[Choose a reasonable default]
+    C -->|No| H{Consequential decision?}
+    H -->|No| N[Keep visible as bounded uncertainty]
+    H -->|Yes| G[Decision Gate]
+    G --> M[Present evidence + options + recommendation]
+    M --> X[Human decision]
+    X --> R
+```
+
 ## Decision Gate
 
 Escalate to a human when a consequential choice cannot be resolved from evidence and existing constraints.
