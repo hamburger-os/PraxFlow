@@ -52,13 +52,47 @@ PraxFlow is **not** a new agent runtime, a new Skill format, or a generic prompt
 
 ## Quick start
 
-Requires **Python 3.10 or newer**.
+The easiest way to install PraxFlow is through the open Agent Skills ecosystem. No clone or Python setup is required:
+
+```bash
+npx skills@latest add hamburger-os/PraxFlow
+```
+
+Choose the Workflows, cognitive Skills, and optional Domain Packs you want, then choose the coding agents that should receive them.
+
+Install selected packages non-interactively when you already know what you need:
+
+```bash
+npx skills@latest add hamburger-os/PraxFlow \
+  --skill develop-feature \
+  --skill diagnose \
+  --agent codex \
+  --yes
+```
+
+GitHub CLI can also discover the standard catalog directly:
+
+```bash
+gh skill install hamburger-os/PraxFlow
+```
+
+All installable PraxFlow packages use the standard flat catalog layout:
+
+```text
+skills/<package-name>/SKILL.md
+```
+
+PraxFlow's conceptual distinction between Workflow, cognitive Skill, and Domain Pack is recorded in `metadata.praxflow-type`, not encoded in repository path depth. This keeps the source tree directly consumable by standards-compatible installers without a PraxFlow-specific discovery rule.
+
+### Advanced / deterministic installer
+
+The repository still includes a Python installer for deterministic Core installation, explicit Domain Packs, custom output directories, dry runs, and local development. This path requires **Python 3.10 or newer**:
 
 ```bash
 git clone https://github.com/hamburger-os/PraxFlow.git
 cd PraxFlow
 
-# Install Core workflows + Core skills into a Codex-compatible project
+# Install Core Workflows + Core Skills into a Codex-compatible project
 python3 scripts/install.py --target codex --scope project --dest /path/to/project
 
 # Add the embedded reference pack
@@ -69,17 +103,7 @@ python3 scripts/install.py \
   --pack praxflow-embedded
 ```
 
-Also supported by the installer:
-
-```bash
-# Claude Code
-python3 scripts/install.py --target claude --scope project --dest /path/to/project
-
-# TRAE
-python3 scripts/install.py --target trae --scope project --dest /path/to/project
-```
-
-Current project-level discovery paths:
+Current project-level discovery paths used by the built-in installer:
 
 | Client | Discovery path |
 | --- | --- |
@@ -87,7 +111,7 @@ Current project-level discovery paths:
 | TRAE | `.agents/skills/` |
 | Claude Code | `.claude/skills/` |
 
-See [`adapters/README.md`](adapters/README.md) for adapter details and manual installation.
+See [`adapters/README.md`](adapters/README.md) for distribution details, user-level installation, and manual installation.
 
 ## The model
 
@@ -117,9 +141,9 @@ flowchart TD
 | **Protocol** | Cross-cutting rules for evidence, decisions, change scope, verification, and durable knowledge. |
 | **Capability** | A concrete action provided by the current project or environment, such as build, test, deploy, flash, browser, serial, or database access. |
 
-Agent Skills are the **distribution format**. PraxFlow's Workflow/Skill distinction is conceptual; both can be packaged as standards-compatible `SKILL.md` directories.
+Agent Skills are the **distribution format**. PraxFlow's Workflow/Skill distinction is conceptual; both are packaged as standards-compatible `SKILL.md` directories under [`skills/`](skills/).
 
-The top-level [`protocols/`](protocols/) files are canonical methodology references for maintainers, not standalone installable packages. Installable Workflows and Skills carry the operational protocol guidance they need in their own `SKILL.md`; changing a Protocol therefore requires updating the affected packages in the same change.
+The top-level [`protocols/`](protocols/) files are canonical methodology references for maintainers, not standalone installable packages. Installable packages carry the operational protocol guidance they need in their own `SKILL.md`; changing a Protocol therefore requires updating the affected packages in the same change.
 
 ## v0.1 Core
 
@@ -143,10 +167,10 @@ flowchart LR
 
 | Workflow | Purpose |
 | --- | --- |
-| [`develop-feature`](workflows/develop-feature/) | Turn intent into a bounded design, implementation, review, and proportionate verification loop. |
-| [`fix-bug`](workflows/fix-bug/) | Move from symptom to expected behavior, causal diagnosis, bounded repair, and regression verification. |
-| [`understand-project`](workflows/understand-project/) | Build only the evidence-backed project model needed for the stated understanding goal. |
-| [`review-change`](workflows/review-change/) | Review a change against intent, actual scope, contracts, evidence, and domain risks with high-signal findings. |
+| [`develop-feature`](skills/develop-feature/) | Turn intent into a bounded design, implementation, review, and proportionate verification loop. |
+| [`fix-bug`](skills/fix-bug/) | Move from symptom to expected behavior, causal diagnosis, bounded repair, and regression verification. |
+| [`understand-project`](skills/understand-project/) | Build only the evidence-backed project model needed for the stated understanding goal. |
+| [`review-change`](skills/review-change/) | Review a change against intent, actual scope, contracts, evidence, and domain risks with high-signal findings. |
 
 ### Cognitive skills
 
@@ -174,7 +198,7 @@ flowchart LR
 
 Embedded development is the first PraxFlow reference domain because it is a strong stress test for engineering discipline: hardware facts are externally constrained, concurrency and lifetime errors matter, builds and deployments are real operations, and the physical target provides evidence that model reasoning cannot replace.
 
-[`packs/praxflow-embedded/`](packs/praxflow-embedded/) enriches Core with:
+[`praxflow-embedded`](skills/praxflow-embedded/) enriches Core with:
 
 - evidence policy for datasheets, errata, standards, SDK documentation, and reference implementations;
 - embedded review concerns such as ISR/thread boundaries, DMA/cache coherency, alignment, ABI, memory lifetime, timing, and error paths;
@@ -231,18 +255,18 @@ Read the full conceptual model in [`docs/concepts.md`](docs/concepts.md).
 
 ```text
 PraxFlow/
-├── workflows/      # End-to-end workflow packages
-├── skills/         # Reusable cognitive skill packages
-├── protocols/      # Cross-cutting methodology
-├── packs/          # Domain packs; embedded is the first reference pack
+├── skills/         # Canonical installable Agent Skills catalog: Workflows, cognitive Skills, Domain Packs
+├── protocols/      # Cross-cutting methodology references for maintainers
 ├── evals/          # Methodology evaluation framework and scenarios
 ├── case-studies/   # Real engineering cases
-├── adapters/       # Client installation notes
+├── adapters/       # Client distribution and installation notes
 ├── examples/       # Project capability examples
 ├── assets/         # Brand / social assets
-├── scripts/        # Installer and validator
+├── scripts/        # Deterministic installer and validator
 └── docs/           # Concepts, roadmap, release and brand guidance
 ```
+
+Every installable package is exactly one directory below `skills/`. Conceptual grouping is metadata/catalog information rather than directory semantics.
 
 ## Validate
 
@@ -250,7 +274,7 @@ PraxFlow/
 python3 scripts/validate.py
 ```
 
-CI runs the PraxFlow structural validator on Python 3.10 and the latest stable Python, checks every package with the pinned Agent Skills reference validator, and exercises installer paths and failure modes across supported targets.
+CI runs the PraxFlow structural validator on Python 3.10 and the latest stable Python, checks every `skills/*` package with the pinned Agent Skills reference validator, exercises the built-in installer, and smoke-tests installation through the external Agent Skills CLI.
 
 For local normative Agent Skills validation, you can also use the Agent Skills reference validator (`skills-ref validate`).
 
@@ -274,6 +298,8 @@ Before proposing a new Core Skill, ask whether it represents a genuinely reusabl
 ## Compatibility references
 
 - [Agent Skills open specification](https://agentskills.io/specification)
+- [Agent Skills CLI](https://github.com/vercel-labs/skills)
+- [GitHub CLI Agent Skills](https://cli.github.com/manual/gh_skill)
 - [Claude Code Skills](https://code.claude.com/docs/en/skills)
 - [OpenAI Skills / Codex](https://learn.chatgpt.com/docs/build-skills)
 - [TRAE changelog](https://www.trae.ai/changelog)
