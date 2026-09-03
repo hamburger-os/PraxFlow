@@ -24,8 +24,10 @@
 <!-- What did you run or inspect? Include commands or scenarios when useful. -->
 
 - [ ] `python3 scripts/validate.py`
+- [ ] Agent Skills reference validation (`skills-ref validate`) when package format/content changed
 - [ ] Relevant installer smoke test
 - [ ] Real workflow / skill evaluation, when behavior changed
+- [ ] If a top-level `protocols/*.md` file changed, affected installable packages were updated in the same PR
 
 ## Abstraction check
 
