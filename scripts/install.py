@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 from validate import ROOT, discover_packages, validate_all
@@ -98,6 +99,38 @@ def resolve_output_dir(args: argparse.Namespace) -> Path:
     return USER_PATHS[args.target].expanduser().resolve()
 
 
+def replace_tree(source: Path, target: Path) -> None:
+    """Stage a package copy before replacing an existing installation."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    staging_root = Path(
+        tempfile.mkdtemp(prefix=f".praxflow-{target.name}-", dir=target.parent)
+    )
+    staged = staging_root / "new"
+    backup = staging_root / "old"
+    committed = False
+
+    try:
+        shutil.copytree(source, staged)
+        if target.exists():
+            target.rename(backup)
+        try:
+            staged.rename(target)
+            committed = True
+        except Exception:
+            if target.exists():
+                shutil.rmtree(target)
+            if backup.exists():
+                backup.rename(target)
+            raise
+
+        if backup.exists():
+            shutil.rmtree(backup)
+    finally:
+        if not committed and backup.exists() and not target.exists():
+            backup.rename(target)
+        shutil.rmtree(staging_root, ignore_errors=True)
+
+
 def main() -> int:
     args = parse_args()
     packages = discover_packages()
@@ -138,6 +171,21 @@ def main() -> int:
         return 2
 
     output_dir = resolve_output_dir(args)
+
+    canonical_roots = tuple(
+        (ROOT / root_name).resolve() for root_name in ("workflows", "skills", "packs")
+    )
+    if any(
+        output_dir == canonical_root or output_dir.is_relative_to(canonical_root)
+        for canonical_root in canonical_roots
+    ):
+        print(
+            "Refusing to install into PraxFlow canonical source directories: "
+            f"{output_dir}",
+            file=sys.stderr,
+        )
+        return 4
+
     actions: list[tuple[Path, Path]] = []
     collisions: list[Path] = []
 
@@ -167,9 +215,7 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for source, target in actions:
-        if target.exists():
-            shutil.rmtree(target)
-        shutil.copytree(source, target)
+        replace_tree(source, target)
 
     print(f"Installed {len(actions)} package(s).")
     if warnings:

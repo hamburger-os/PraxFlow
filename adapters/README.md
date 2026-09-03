@@ -4,6 +4,10 @@ PraxFlow uses the open Agent Skills format as its canonical package format. Adap
 
 Client paths change over time; treat this file and `scripts/install.py` as compatibility code, not methodology.
 
+## Requirements
+
+The installer and validator require **Python 3.10 or newer**.
+
 ## Agent Skills format
 
 Normative format:

@@ -18,7 +18,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/praxflow-banner.svg" alt="PraxFlow — 面向可靠 AI Agent 的工程工作流" width="100%" />
+  <img src="assets/praxflow-banner.svg" alt="PraxFlow — 面向可靠 AI Agent 的工程工作流" width="92%" />
 </p>
 
 <p align="center">
@@ -51,6 +51,8 @@ PraxFlow **不是**新的 Agent Runtime、不是新的 Skill 格式，也不是�
 > **目标不是让 Agent 做更多，而是让它做出的工程结果更可靠。**
 
 ## 快速开始
+
+需要 **Python 3.10 或更高版本**。
 
 ```bash
 git clone https://github.com/hamburger-os/PraxFlow.git
@@ -116,6 +118,8 @@ flowchart TD
 | **Capability** | 当前项目或环境提供的具体执行能力，例如 build、test、deploy、flash、browser、serial、database。 |
 
 Agent Skills 是 PraxFlow 的**分发格式**。PraxFlow 对 Workflow / Skill 的区分属于方法论概念层；在实际分发时，两者都可以被包装成标准兼容的 `SKILL.md` 目录。
+
+顶层 [`protocols/`](protocols/) 文件是维护者使用的规范性方法论参考，并不是独立安装的 Agent Skill package。可安装的 Workflow / Skill 会在自己的 `SKILL.md` 中携带运行时真正需要的 Protocol 行为，因此修改 Protocol 时必须在同一个变更中同步更新受影响的 packages。
 
 ## v0.1 Core
 
@@ -246,9 +250,9 @@ PraxFlow/
 python3 scripts/validate.py
 ```
 
-CI 会在相关 push / pull request 中自动执行 validator 和 installer smoke test。
+CI 会在 Python 3.10 和最新稳定版 Python 上运行 PraxFlow structural validator，使用固定版本的 Agent Skills reference validator 检查全部 package，并覆盖受支持 target 的安装路径与主要失败模式。
 
-如果需要严格按照 Agent Skills 规范进行验证，也建议使用官方参考 validator：`skills-ref validate`。
+本地如需按 Agent Skills 规范进行验证，也可以使用 reference validator：`skills-ref validate`。
 
 ## 项目状态
 

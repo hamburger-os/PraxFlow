@@ -63,6 +63,8 @@ Core protocols:
 - **Verification** — how completion claims are supported by proportionate external evidence.
 - **Knowledge** — what should be persisted beyond ephemeral model context.
 
+The repository-level `protocols/*.md` files are the canonical methodology references for maintainers. They are intentionally not standalone Agent Skill packages and are not copied by the installer. Portable Workflow/Skill packages embed the operational subset they require, so a Protocol change is incomplete until the affected packages are updated in the same change.
+
 ## Capability
 
 A Capability is a concrete action available in the current environment.

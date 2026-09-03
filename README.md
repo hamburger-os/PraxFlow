@@ -18,7 +18,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/praxflow-banner.svg" alt="PraxFlow — engineering workflows for reliable AI agents" width="100%" />
+  <img src="assets/praxflow-banner.svg" alt="PraxFlow — engineering workflows for reliable AI agents" width="92%" />
 </p>
 
 <p align="center">
@@ -51,6 +51,8 @@ PraxFlow is **not** a new agent runtime, a new Skill format, or a generic prompt
 > **The goal is not to make an agent do more. The goal is to make the work it does more reliable.**
 
 ## Quick start
+
+Requires **Python 3.10 or newer**.
 
 ```bash
 git clone https://github.com/hamburger-os/PraxFlow.git
@@ -116,6 +118,8 @@ flowchart TD
 | **Capability** | A concrete action provided by the current project or environment, such as build, test, deploy, flash, browser, serial, or database access. |
 
 Agent Skills are the **distribution format**. PraxFlow's Workflow/Skill distinction is conceptual; both can be packaged as standards-compatible `SKILL.md` directories.
+
+The top-level [`protocols/`](protocols/) files are canonical methodology references for maintainers, not standalone installable packages. Installable Workflows and Skills carry the operational protocol guidance they need in their own `SKILL.md`; changing a Protocol therefore requires updating the affected packages in the same change.
 
 ## v0.1 Core
 
@@ -246,9 +250,9 @@ PraxFlow/
 python3 scripts/validate.py
 ```
 
-CI also runs the validator and an installer smoke test on every relevant push and pull request.
+CI runs the PraxFlow structural validator on Python 3.10 and the latest stable Python, checks every package with the pinned Agent Skills reference validator, and exercises installer paths and failure modes across supported targets.
 
-For normative Agent Skills validation, also use the Agent Skills reference validator (`skills-ref validate`).
+For local normative Agent Skills validation, you can also use the Agent Skills reference validator (`skills-ref validate`).
 
 ## Project status
 

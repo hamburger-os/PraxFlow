@@ -23,6 +23,7 @@ The project is pre-1.0. Until the first tagged release, the changelog tracks the
 - Recommended GitHub repository metadata and protection settings in `docs/repository-settings.md`.
 - `SECURITY.md`, `CODE_OF_CONDUCT.md`, Pull Request template, and structured Issue Forms.
 - `.editorconfig` and `.gitignore` repository hygiene files.
+- CI coverage for the Python 3.10 runtime floor, pinned Agent Skills reference validation, and cross-target installer smoke tests.
 
 ### Changed
 
@@ -31,6 +32,10 @@ The project is pre-1.0. Until the first tagged release, the changelog tracks the
 - Removed early candidate abstractions such as generic `implement`, `verify`, `write-spec`, `sync-docs`, and `evidence-search` Core Skills.
 - Reworked README information architecture around quick start, visual model, real evidence, contribution, and security entry points.
 - Separated qualitative case-study evidence from controlled eval claims to avoid retrospective metric invention.
+- Clarified that repository-level Protocol documents are canonical maintainer references while portable packages embed their required operational guidance.
+- Reduced README hero repetition and corrected the banner feedback-loop/pill overlap.
+- Hardened forced installation by refusing canonical source directories and staging replacement copies before removing an existing installation.
+- Documented Python 3.10+ as the supported tooling runtime.
 
 ### Design notes
 
