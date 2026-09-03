@@ -10,18 +10,14 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE_ROOTS = {
-    "workflows": "workflow",
-    "skills": "skill",
-    "packs": "pack",
-}
+PACKAGE_ROOT = ROOT / "skills"
+ALLOWED_PRAXFLOW_TYPES = {"workflow", "skill", "pack"}
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 REFERENCE_RE = re.compile(r"(?:`|\()((?:references|scripts|assets)/[^`)\s]+)")
 
 
 @dataclass
 class Package:
-    root_kind: str
     directory: Path
     skill_file: Path
     frontmatter: dict[str, str]
@@ -80,15 +76,14 @@ def unquote(value: str) -> str:
 
 def discover_packages() -> list[Package]:
     packages: list[Package] = []
-    for root_name, conceptual_type in PACKAGE_ROOTS.items():
-        base = ROOT / root_name
-        if not base.exists():
-            continue
-        for skill_file in sorted(base.glob("*/SKILL.md")):
-            top, metadata, body, parse_errors = parse_frontmatter(skill_file)
-            package = Package(root_name, skill_file.parent, skill_file, top, metadata, body)
-            package._parse_errors = parse_errors  # type: ignore[attr-defined]
-            packages.append(package)
+    if not PACKAGE_ROOT.exists():
+        return packages
+
+    for skill_file in sorted(PACKAGE_ROOT.glob("*/SKILL.md")):
+        top, metadata, body, parse_errors = parse_frontmatter(skill_file)
+        package = Package(skill_file.parent, skill_file, top, metadata, body)
+        package._parse_errors = parse_errors  # type: ignore[attr-defined]
+        packages.append(package)
     return packages
 
 
@@ -116,12 +111,10 @@ def validate_package(package: Package) -> tuple[list[str], list[str]]:
     elif len(description) < 40:
         warnings.append("description may be too vague for reliable implicit discovery")
 
-    expected_type = PACKAGE_ROOTS[package.root_kind]
     actual_type = package.metadata.get("praxflow-type")
-    if actual_type != expected_type:
-        errors.append(
-            f"metadata.praxflow-type must be {expected_type!r} for packages under {package.root_kind}/"
-        )
+    if actual_type not in ALLOWED_PRAXFLOW_TYPES:
+        allowed = ", ".join(sorted(ALLOWED_PRAXFLOW_TYPES))
+        errors.append(f"metadata.praxflow-type must be one of: {allowed}")
 
     if not package.metadata.get("praxflow-version"):
         errors.append("metadata.praxflow-version is required")
@@ -157,7 +150,7 @@ def validate_all(packages: Iterable[Package]) -> tuple[list[str], list[str]]:
 
     packages = list(packages)
     if not packages:
-        errors.append("no PraxFlow packages found")
+        errors.append("no PraxFlow packages found under skills/")
         return errors, warnings
 
     for package in packages:
@@ -175,7 +168,7 @@ def validate_all(packages: Iterable[Package]) -> tuple[list[str], list[str]]:
             else:
                 names[name] = package.directory
 
-    expected_core = {
+    expected_packages = {
         "develop-feature",
         "fix-bug",
         "understand-project",
@@ -185,10 +178,11 @@ def validate_all(packages: Iterable[Package]) -> tuple[list[str], list[str]]:
         "grill",
         "diagnose",
         "plan-change",
+        "praxflow-embedded",
     }
-    missing = sorted(expected_core - set(names))
+    missing = sorted(expected_packages - set(names))
     if missing:
-        errors.append("missing expected v0.1 Core packages: " + ", ".join(missing))
+        errors.append("missing expected v0.1 packages: " + ", ".join(missing))
 
     return errors, warnings
 
