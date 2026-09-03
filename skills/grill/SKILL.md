@@ -13,13 +13,16 @@ Help the user make the decisions that actually require human judgment. Do not tu
 
 ## Core behavior
 
-```text
-Investigate
--> resolve what evidence can resolve
--> identify real choices
--> recommend
--> ask only when necessary
--> converge
+```mermaid
+flowchart LR
+    I[Investigate] --> R[Resolve what evidence can resolve]
+    R --> C[Identify real choices]
+    C --> M[Recommend]
+    M --> Q{Human decision necessary?}
+    Q -->|No| N[Continue with bounded next step]
+    Q -->|Yes| A[Ask one high-value question]
+    A --> V[Converge decision]
+    V --> N
 ```
 
 ## Method
