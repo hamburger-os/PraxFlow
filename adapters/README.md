@@ -1,12 +1,42 @@
 # Client Adapters
 
-PraxFlow uses the open Agent Skills format as its canonical package format. Adapters only decide **where** a package is copied so a particular client can discover it.
+PraxFlow uses the open Agent Skills format as its canonical package format. Every installable package lives directly under:
 
-Client paths change over time; treat this file and `scripts/install.py` as compatibility code, not methodology.
+```text
+skills/<package-name>/SKILL.md
+```
 
-## Requirements
+This flat catalog is the source of truth for distribution. PraxFlow conceptual types (`workflow`, `skill`, and `pack`) are recorded in `metadata.praxflow-type`; they are not encoded as separate repository roots.
 
-The installer and validator require **Python 3.10 or newer**.
+Client adapters decide **where** an installed package is placed. They must not redefine package content or create duplicate canonical copies.
+
+## Recommended installation
+
+For most users, use a standards-compatible ecosystem installer rather than cloning PraxFlow first:
+
+```bash
+npx skills@latest add hamburger-os/PraxFlow
+```
+
+The repository layout follows the standard `skills/*/SKILL.md` discovery convention, so no deep-search or PraxFlow-specific discovery flag is required.
+
+Install selected packages directly when needed:
+
+```bash
+npx skills@latest add hamburger-os/PraxFlow \
+  --skill develop-feature \
+  --skill diagnose \
+  --agent codex \
+  --yes
+```
+
+GitHub CLI can also discover the same catalog:
+
+```bash
+gh skill install hamburger-os/PraxFlow
+```
+
+The external installer is the preferred first-run path because it handles client discovery and selection without requiring a PraxFlow clone or Python runtime.
 
 ## Agent Skills format
 
@@ -14,9 +44,24 @@ Normative format:
 
 https://agentskills.io/specification
 
-PraxFlow packages use only portable core frontmatter (`name`, `description`, `license`, `metadata`) and standard supporting directories. Vendor-specific extensions should remain optional.
+PraxFlow packages use portable core frontmatter (`name`, `description`, `license`, `metadata`) and standard supporting directories. Vendor-specific extensions must remain optional.
 
-## Codex
+The package directory name must match `name` in `SKILL.md`. Supporting material should remain package-local (`references/`, `scripts/`, `assets/`) so each package stays self-contained.
+
+## Built-in deterministic installer
+
+PraxFlow keeps `scripts/install.py` as an advanced compatibility and development tool. It is useful when you need:
+
+- deterministic Core installation without interactive package selection;
+- explicit Domain Pack installation;
+- custom output directories;
+- project vs user scope control for known clients;
+- dry-run / collision behavior;
+- local source validation before copying.
+
+The built-in installer and validator require **Python 3.10 or newer**.
+
+### Codex
 
 Current repo/project discovery path:
 
@@ -46,13 +91,7 @@ Install selected packages for the current user:
 python3 scripts/install.py --target codex --scope user --package diagnose --package trace
 ```
 
-### Reusable OpenAI distribution
-
-Direct Skill folders remain the right authoring and repository-local format. Current OpenAI guidance recommends packaging reusable distributions as a **plugin** when publishing a stable workflow for others to install, especially when bundling two or more Skills or combining Skills with connectors.
-
-PraxFlow therefore keeps `.agents/skills` installation as the portable/local path and treats an OpenAI plugin bundle as a client-specific distribution layer rather than a new canonical source tree. Any future plugin packaging should be generated or assembled from the canonical packages under `workflows/`, `skills/`, and `packs/` so the repository does not maintain duplicate methodology sources.
-
-## Claude Code
+### Claude Code
 
 Current project discovery path:
 
@@ -76,7 +115,7 @@ Install Core into a project:
 python3 scripts/install.py --target claude --scope project --dest /path/to/repo
 ```
 
-## TRAE
+### TRAE
 
 TRAE supports Agent Skills and project Skill loading from:
 
@@ -96,7 +135,7 @@ python3 scripts/install.py --target trae --scope project --dest /path/to/repo
 
 TRAE also provides global Skills through product UI. PraxFlow does not hard-code a filesystem global path because public client behavior can change. Use the UI or `--target generic --output-dir ...` if you know the target directory for your installation.
 
-## Generic Agent Skills client
+### Generic Agent Skills client
 
 For any client that accepts an Agent Skills directory:
 
@@ -106,9 +145,9 @@ python3 scripts/install.py \
   --output-dir /path/to/skills
 ```
 
-## Packs
+## Domain Packs
 
-Core installation includes the four Workflows and five cognitive Skills. Domain Packs are opt-in:
+Core installation through the built-in installer includes the four Workflows and five cognitive Skills. Domain Packs are opt-in:
 
 ```bash
 python3 scripts/install.py \
@@ -118,24 +157,29 @@ python3 scripts/install.py \
   --pack praxflow-embedded
 ```
 
-A Domain Pack is itself packaged as an Agent Skill distribution unit so it can activate alongside a Core Workflow. Conceptually it remains a PraxFlow Pack, not a Core cognitive Skill.
+A Domain Pack is technically an Agent Skills package and therefore lives under `skills/` like every other installable unit. Conceptually it remains a PraxFlow Pack, not a Core cognitive Skill.
 
-## Copy, don't duplicate source-of-truth
+## One canonical distribution tree
 
-The PraxFlow repository keeps canonical package sources under:
+Do not maintain duplicate source trees under client-specific paths such as `.agents/skills/`, `.claude/skills/`, or a generated `workflows/` / `packs/` hierarchy.
+
+Canonical source:
 
 ```text
-workflows/
 skills/
-packs/
 ```
 
-The installer copies them into the client's flat discovery directory. Do not manually maintain duplicate canonical copies under `.agents/skills` and `.claude/skills` in this repository.
+Client-specific copies are installation output only.
+
+This separation gives PraxFlow one portable source of truth while allowing multiple clients and installers to map packages into their own discovery paths.
 
 ## Client-specific enhancements
 
-A client may support extra metadata, UI manifests, invocation policy, or plugin packaging. Add such integrations under `adapters/` only when:
+A client may support extra metadata, UI manifests, invocation policy, plugin packaging, or managed update channels. Add such integrations only when:
 
-- the portable `SKILL.md` remains valid without them;
+- the canonical `skills/<name>/SKILL.md` remains valid without them;
 - the enhancement solves a demonstrated client problem;
-- Core methodology does not depend on the extension.
+- Core methodology does not depend on the extension;
+- generated or managed distributions are derived from canonical `skills/`, never maintained as a second methodology source.
+
+Native plugins can be useful as a managed distribution layer, especially when they provide automatic updates or bundle multiple capabilities. They should remain adapters over the canonical catalog rather than a replacement for it.
