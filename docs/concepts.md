@@ -63,7 +63,7 @@ Core protocols:
 - **Verification** — how completion claims are supported by proportionate external evidence.
 - **Knowledge** — what should be persisted beyond ephemeral model context.
 
-The repository-level `protocols/*.md` files are the canonical methodology references for maintainers. They are intentionally not standalone Agent Skill packages and are not copied by the installer. Portable Workflow/Skill packages embed the operational subset they require, so a Protocol change is incomplete until the affected packages are updated in the same change.
+The repository-level `protocols/*.md` files are the canonical methodology references for maintainers. They are intentionally not standalone Agent Skill packages and are not copied by the installer. Portable packages under `skills/` embed the operational subset they require, so a Protocol change is incomplete until the affected packages are updated in the same change.
 
 ## Capability
 
@@ -91,7 +91,7 @@ flowchart LR
     E -->|supports / contradicts| M
 ```
 
-## Skill Package vs conceptual Skill
+## Agent Skill package vs conceptual Skill
 
 The Agent Skills open format uses a directory with `SKILL.md` as a portable distribution unit. PraxFlow uses that format for multiple conceptual types.
 
@@ -106,6 +106,29 @@ flowchart LR
 So `develop-feature/SKILL.md` is technically an Agent Skill package but conceptually a PraxFlow **Workflow**. `trace/SKILL.md` is both an Agent Skill package and a PraxFlow **Skill**.
 
 PraxFlow records the conceptual type in `metadata.praxflow-type`.
+
+### Canonical package layout
+
+Conceptual taxonomy and physical distribution are deliberately separate. Every installable unit uses the same lowest-common-denominator repository convention:
+
+```text
+skills/
+├── develop-feature/
+│   └── SKILL.md
+├── diagnose/
+│   └── SKILL.md
+└── praxflow-embedded/
+    ├── SKILL.md
+    └── references/
+```
+
+There is no canonical `workflows/` or `packs/` package root. A standards-compatible installer should be able to discover the entire public catalog by scanning `skills/*/SKILL.md` without PraxFlow-specific recursion or path rules.
+
+This choice has three consequences:
+
+1. **Portability wins over visual taxonomy.** Repository path depth must not become part of PraxFlow semantics.
+2. **Metadata carries conceptual type.** `metadata.praxflow-type` distinguishes `workflow`, `skill`, and `pack`.
+3. **Catalog presentation is optional.** Files such as `skills.sh.json` may group packages for humans or installer UIs, but runtime identity remains the package directory plus `SKILL.md`.
 
 ## Domain Pack
 
