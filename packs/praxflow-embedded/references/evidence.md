@@ -37,6 +37,21 @@ Typical authority relationships:
 
 Do not compare sources that answer different questions as though they form one simple total order.
 
+## Source roles
+
+Keep the role of each evidence class explicit rather than blending them together:
+
+```mermaid
+flowchart LR
+    H[Hardware / formal standard] -->|defines required external behavior| R[Engineering reasoning]
+    I[Mature reference implementation] -->|shows proven implementation patterns| R
+    P[Current project code + docs] -->|defines current integration context| R
+    D[Accepted project decisions] -->|defines intended project behavior| R
+    R --> X[Project-specific implementation]
+```
+
+A reference implementation can inform the design without becoming the specification. Project intent can select among valid designs without redefining hardware or protocol facts.
+
 ## Applicability before authority
 
 Before relying on a source, verify when practical:
@@ -76,14 +91,14 @@ Use mature implementations to learn:
 
 Do not copy platform-specific abstractions blindly into another RTOS/OS/project.
 
-Separate:
-
-```text
-What the hardware/standard requires
-from
-How another project implemented it
-from
-How this project should integrate it
+```mermaid
+flowchart TD
+    S[Hardware / standard requirement] --> A[Separate normative facts]
+    R[Reference implementation] --> B[Extract implementation patterns]
+    P[Current project architecture] --> C[Identify local integration constraints]
+    A --> D[Design for this project]
+    B --> D
+    C --> D
 ```
 
 ## Local reference handling
