@@ -93,3 +93,61 @@ jobs:
           fi
           after=$(sha256sum workflows/develop-feature/SKILL.md)
           test "$before" = "$after"
+
+  protocol-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require package updates when Protocols change
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          zero_sha="0000000000000000000000000000000000000000"
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            base="$PR_BASE_SHA"
+          else
+            base="$PUSH_BEFORE_SHA"
+            if [[ -z "$base" || "$base" == "$zero_sha" ]]; then
+              echo "No comparable base SHA for this push; skipping Protocol sync diff check."
+              exit 0
+            fi
+          fi
+
+          changed=$(git diff --name-only "$base" "$GITHUB_SHA")
+          printf '%s\n' "$changed"
+
+          if grep -Eq '^protocols/.*\.md$' <<<"$changed"; then
+            if ! grep -Eq '^(workflows|skills|packs)/' <<<"$changed"; then
+              echo "Protocol changes must update at least one installable package in workflows/, skills/, or packs/." >&2
+              echo "Top-level Protocols are maintainer source-of-truth; portable packages must stay operationally aligned." >&2
+              exit 1
+            fi
+          fi
+
+  required:
+    name: Validate PraxFlow
+    if: ${{ always() }}
+    needs:
+      - validate
+      - installer-smoke
+      - protocol-sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all validation jobs
+        shell: bash
+        env:
+          VALIDATE_RESULT: ${{ needs.validate.result }}
+          INSTALLER_RESULT: ${{ needs.installer-smoke.result }}
+          PROTOCOL_SYNC_RESULT: ${{ needs.protocol-sync.result }}
+        run: |
+          set -euo pipefail
+          test "$VALIDATE_RESULT" = "success"
+          test "$INSTALLER_RESULT" = "success"
+          test "$PROTOCOL_SYNC_RESULT" = "success"

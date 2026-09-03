@@ -46,6 +46,12 @@ Install selected packages for the current user:
 python3 scripts/install.py --target codex --scope user --package diagnose --package trace
 ```
 
+### Reusable OpenAI distribution
+
+Direct Skill folders remain the right authoring and repository-local format. Current OpenAI guidance recommends packaging reusable distributions as a **plugin** when publishing a stable workflow for others to install, especially when bundling two or more Skills or combining Skills with connectors.
+
+PraxFlow therefore keeps `.agents/skills` installation as the portable/local path and treats an OpenAI plugin bundle as a client-specific distribution layer rather than a new canonical source tree. Any future plugin packaging should be generated or assembled from the canonical packages under `workflows/`, `skills/`, and `packs/` so the repository does not maintain duplicate methodology sources.
+
 ## Claude Code
 
 Current project discovery path:

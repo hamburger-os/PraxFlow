@@ -71,16 +71,19 @@ Squash merging keeps methodology changes reviewable as one conceptual change whi
 
 ## Main branch protection
 
-Once public contributions begin, protect `main` using a Ruleset or branch protection rule.
+Protect `main` using a Ruleset or branch protection rule.
 
 Recommended baseline:
 
 - require a pull request before merging;
-- require the `Validate PraxFlow` status check;
+- allow **squash** as the merge method for protected `main`;
+- require the aggregate `Validate PraxFlow` status check;
 - require branches to be up to date when practical;
 - block force pushes;
 - block branch deletion;
 - require code-owner review only if CODEOWNERS becomes meaningful with multiple maintainers.
+
+The `Validate PraxFlow` aggregate job is intentionally stable: it succeeds only after the Python compatibility/structural checks, pinned Agent Skills reference validation, installer smoke tests, and Protocol/package synchronization checks have all succeeded. Use that aggregate job as the branch-protection status context instead of individual matrix job names.
 
 Do not enable approval rules that create ceremony without an actual second maintainer.
 
