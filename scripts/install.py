@@ -146,7 +146,9 @@ def main() -> int:
     if args.list:
         for name in sorted(index):
             package = index[name]
-            print(f"{name:24} {package.metadata.get('praxflow-type', '?'):10} {package.root_kind}")
+            package_type = package.metadata.get("praxflow-type", "?")
+            source = package.directory.relative_to(ROOT)
+            print(f"{name:24} {package_type:10} {source}")
         return 0
 
     requested = list(args.package)
@@ -172,15 +174,10 @@ def main() -> int:
 
     output_dir = resolve_output_dir(args)
 
-    canonical_roots = tuple(
-        (ROOT / root_name).resolve() for root_name in ("workflows", "skills", "packs")
-    )
-    if any(
-        output_dir == canonical_root or output_dir.is_relative_to(canonical_root)
-        for canonical_root in canonical_roots
-    ):
+    canonical_root = (ROOT / "skills").resolve()
+    if output_dir == canonical_root or output_dir.is_relative_to(canonical_root):
         print(
-            "Refusing to install into PraxFlow canonical source directories: "
+            "Refusing to install into PraxFlow canonical source directory: "
             f"{output_dir}",
             file=sys.stderr,
         )
