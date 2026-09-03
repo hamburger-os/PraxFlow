@@ -15,19 +15,19 @@
 
 **把“能力很强的 Coding Agent”变成“有工程纪律的协作者”。**
 
-</div>
-
-<p align="center">
-  <img src="assets/praxflow-banner.svg" alt="PraxFlow — 面向可靠 AI Agent 的工程工作流" width="92%" />
-</p>
-
-<p align="center">
+<p>
   <a href="#快速开始">快速开始</a> ·
   <a href="docs/concepts.md">核心概念</a> ·
   <a href="evals/README.md">Evals</a> ·
   <a href="case-studies/mcp2518fd-rtthread.md">案例</a> ·
   <a href="CONTRIBUTING.md">贡献</a> ·
   <a href="SECURITY.md">安全</a>
+</p>
+
+</div>
+
+<p align="center">
+  <img src="assets/praxflow-diagram.svg" alt="PraxFlow 工作流示意图" width="92%" />
 </p>
 
 ---
