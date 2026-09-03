@@ -15,14 +15,25 @@ The project is pre-1.0. Until the first tagged release, the changelog tracks the
 - Cross-client installer support for Codex, Claude Code, and TRAE discovery paths.
 - Package validator and GitHub Actions validation / installer smoke test.
 - English and Simplified Chinese project READMEs.
+- Canonical PraxFlow banner and brand guidance.
+- Mermaid diagrams for the Core model, workflow selection, Workflow feedback loops, Decision Gates, verification ladders, and embedded evidence/verification relationships.
+- `evals/` methodology evaluation framework and scenario template.
+- `case-studies/` with an explicitly qualitative MCP2518FD / RT-Thread retrospective.
+- Release evidence checklist in `docs/releasing.md`.
+- Recommended GitHub repository metadata and protection settings in `docs/repository-settings.md`.
+- `SECURITY.md`, `CODE_OF_CONDUCT.md`, Pull Request template, and structured Issue Forms.
+- `.editorconfig` and `.gitignore` repository hygiene files.
 
 ### Changed
 
 - Refined the project model around four first-class concepts: Workflow, Skill, Protocol, and Capability.
 - Treat Agent Skills as the distribution format rather than inventing a PraxFlow-specific Skill specification.
 - Removed early candidate abstractions such as generic `implement`, `verify`, `write-spec`, `sync-docs`, and `evidence-search` Core Skills.
+- Reworked README information architecture around quick start, visual model, real evidence, contribution, and security entry points.
+- Separated qualitative case-study evidence from controlled eval claims to avoid retrospective metric invention.
 
 ### Design notes
 
 - `plan-change` remains provisional and may be removed if real-world evaluation shows that it does not add enough value beyond ordinary agent planning.
 - A workflow DSL, runtime, registry, marketplace, and general-purpose domain expansion are deliberately out of scope for the current baseline.
+- The first tagged release should remain a pre-release until representative real engineering evaluations are recorded.
