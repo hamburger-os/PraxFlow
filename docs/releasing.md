@@ -18,8 +18,11 @@ Breaking methodology changes are acceptable during pre-release, but they must be
 
 Before a tagged release:
 
-- [ ] `python3 scripts/validate.py` passes.
-- [ ] Installer smoke tests pass in CI.
+- [ ] `python3 scripts/validate.py` passes on the supported Python floor.
+- [ ] Every Workflow, Skill, and Pack passes the pinned Agent Skills reference validator used by CI.
+- [ ] Installer smoke tests pass across supported targets and failure modes.
+- [ ] No top-level Protocol change is left without a synchronized installable package change.
+- [ ] The final `Validate PraxFlow` CI gate is green on the release commit.
 - [ ] README and `README.zh-CN.md` describe the same public surface.
 - [ ] `CHANGELOG.md` contains the release changes and known limitations.
 - [ ] Each changed Core Workflow/Skill is linked to an observed failure mode, eval, or concrete engineering rationale.
