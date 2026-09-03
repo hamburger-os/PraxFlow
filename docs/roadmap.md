@@ -26,8 +26,9 @@ Deliverables:
   - verification
   - knowledge
 - embedded Domain Pack as the first reference implementation
-- portable installation for Agent Skills-compatible clients
-- structural validation of all packages
+- one canonical standards-compatible distribution catalog at `skills/*/SKILL.md`
+- portable installation for Agent Skills-compatible clients without PraxFlow-specific deep-discovery rules
+- structural validation of all packages plus external installation smoke coverage
 
 Success criteria are behavioral, not file-count based:
 
@@ -38,6 +39,8 @@ Success criteria are behavioral, not file-count based:
 - reviews contain fewer speculative/noise findings and actively try to falsify important findings;
 - completion claims are supported by relevant external checks;
 - embedded workflows consistently consult appropriate authoritative references and real target evidence when available.
+
+Distribution success also has a concrete interoperability criterion: first-class packages must be discoverable from the standard `skills/<name>/SKILL.md` layout by mainstream Agent Skills tooling without requiring a custom PraxFlow repository adapter.
 
 ## v0.2 — Real-project evaluation
 
@@ -94,6 +97,12 @@ The goal is to establish which parts of PraxFlow actually cause quality improvem
 Only after embedded has validated the pack mechanism, add a second materially different domain. Backend/distributed systems is a strong candidate because it introduces transaction, migration, idempotency, authorization, observability, and distributed-failure concerns.
 
 A second pack should test whether the Domain Pack abstraction is genuinely reusable rather than embedded-specific.
+
+## Managed distribution decision gate
+
+Native client plugins or managed bundles may be added when they materially improve updates, discovery, or integration for a client.
+
+They must remain derived distribution layers over the canonical `skills/` catalog. Do not create a second hand-maintained methodology source tree just to support a client marketplace.
 
 ## Workflow manifest decision gate
 
