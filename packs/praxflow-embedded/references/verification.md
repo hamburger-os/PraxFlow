@@ -19,20 +19,14 @@ Examples:
 
 Use the relevant subset, not every step mechanically:
 
-```text
-static review / reference check
-        ↓
-compile / build
-        ↓
-host unit or simulation test
-        ↓
-flash / deploy to target
-        ↓
-target runtime observation
-        ↓
-interface/bus/device test
-        ↓
-stress / failure / recovery test
+```mermaid
+flowchart TD
+    A[Static review / reference check] --> B[Compile / build]
+    B --> C[Host unit or simulation test]
+    C --> D[Flash / deploy to target]
+    D --> E[Target runtime observation]
+    E --> F[Interface / bus / device test]
+    F --> G[Stress / failure / recovery test]
 ```
 
 ## Build
