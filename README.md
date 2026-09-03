@@ -15,19 +15,19 @@
 
 **Turn capable coding agents into disciplined engineering collaborators.**
 
-</div>
-
-<p align="center">
-  <img src="assets/praxflow-banner.svg" alt="PraxFlow — engineering workflows for reliable AI agents" width="92%" />
-</p>
-
-<p align="center">
+<p>
   <a href="#quick-start">Quick start</a> ·
   <a href="docs/concepts.md">Concepts</a> ·
   <a href="evals/README.md">Evals</a> ·
   <a href="case-studies/mcp2518fd-rtthread.md">Case study</a> ·
   <a href="CONTRIBUTING.md">Contributing</a> ·
   <a href="SECURITY.md">Security</a>
+</p>
+
+</div>
+
+<p align="center">
+  <img src="assets/praxflow-diagram.svg" alt="PraxFlow workflow diagram" width="92%" />
 </p>
 
 ---
