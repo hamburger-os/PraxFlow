@@ -28,13 +28,14 @@
   </g>
 
   <g transform="translate(92 328)" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
-    <path d="M140 56 H310" stroke="#30363d" stroke-width="3"/>
-    <path d="M458 56 H630" stroke="#30363d" stroke-width="3"/>
-    <path d="M778 56 H950" stroke="#30363d" stroke-width="3"/>
-    <path d="M1020 92 C1020 188 914 202 850 202 H380 C298 202 260 172 260 120" fill="none" stroke="#3fb950" stroke-width="3" stroke-dasharray="8 8" opacity="0.85"/>
-    <path d="M298 52 l18 -10 v20 z" fill="#58a6ff"/>
-    <path d="M618 52 l18 -10 v20 z" fill="#a371f7"/>
-    <path d="M938 52 l18 -10 v20 z" fill="#3fb950"/>
+    <path d="M140 56 H304" stroke="#30363d" stroke-width="3"/>
+    <path d="M460 56 H624" stroke="#30363d" stroke-width="3"/>
+    <path d="M780 56 H944" stroke="#30363d" stroke-width="3"/>
+    <path d="M1030 112 C1030 180 960 202 850 202 H350 V130" fill="none" stroke="#3fb950" stroke-width="3" stroke-dasharray="8 8" opacity="0.85"/>
+    <path d="M304 46 L320 56 L304 66 Z" fill="#58a6ff"/>
+    <path d="M624 46 L640 56 L624 66 Z" fill="#a371f7"/>
+    <path d="M944 46 L960 56 L944 66 Z" fill="#3fb950"/>
+    <path d="M340 130 L350 112 L360 130 Z" fill="#3fb950" opacity="0.9"/>
 
     <g>
       <rect width="140" height="112" rx="18" fill="#161b22" stroke="#30363d"/>
@@ -58,7 +59,7 @@
     </g>
 
     <g transform="translate(410 126)">
-      <rect width="370" height="54" rx="27" fill="#161b22" stroke="#30363d"/>
+      <rect width="420" height="54" rx="27" fill="#161b22" stroke="#30363d"/>
       <circle cx="31" cy="27" r="7" fill="#58a6ff"/>
       <text x="52" y="34" fill="#c9d1d9" font-size="16">Protocols constrain decisions · scope · verification</text>
     </g>
