@@ -1,5 +1,7 @@
 # PraxFlow Roadmap
 
+[English](roadmap.md) · [简体中文](roadmap.zh-CN.md)
+
 PraxFlow should grow from tested workflows, not from speculative framework design.
 
 ## v0.1 — Methodology baseline
@@ -26,7 +28,7 @@ Deliverables:
   - verification
   - knowledge
 - embedded Domain Pack as the first reference implementation
-- one canonical standards-compatible distribution catalog at `skills/*/SKILL.md`
+- one canonical PraxFlow source catalog at `skills/*/SKILL.md`
 - portable installation for Agent Skills-compatible clients without PraxFlow-specific deep-discovery rules
 - structural validation of all packages plus external installation smoke coverage
 
@@ -40,7 +42,7 @@ Success criteria are behavioral, not file-count based:
 - completion claims are supported by relevant external checks;
 - embedded workflows consistently consult appropriate authoritative references and real target evidence when available.
 
-Distribution success also has a concrete interoperability criterion: first-class packages must be discoverable from the standard `skills/<name>/SKILL.md` layout by mainstream Agent Skills tooling without requiring a custom PraxFlow repository adapter.
+Distribution success also has a concrete interoperability criterion: PraxFlow's first-class packages must be discoverable from its flat `skills/<name>/SKILL.md` source catalog by supported mainstream Agent Skills tooling without requiring a custom PraxFlow repository adapter. The flat source root is a PraxFlow repository convention, not a filesystem requirement imposed by the Agent Skills specification.
 
 ## v0.2 — Real-project evaluation
 
