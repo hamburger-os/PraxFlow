@@ -10,17 +10,86 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.x"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-      - name: Validate Agent Skills packages
+          python-version: ${{ matrix.python-version }}
+      - name: Validate PraxFlow package structure
         run: python3 scripts/validate.py
-      - name: Smoke-test installer
+      - name: Compile Python tooling
+        run: python3 -m py_compile scripts/install.py scripts/validate.py
+      - name: Install pinned Agent Skills reference validator
+        if: matrix.python-version == '3.x'
+        run: >-
+          python3 -m pip install
+          "skills-ref @ git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref"
+      - name: Validate Agent Skills specification conformance
+        if: matrix.python-version == '3.x'
+        shell: bash
         run: |
-          mkdir -p /tmp/praxflow-test-project
-          python3 scripts/install.py --target codex --scope project --dest /tmp/praxflow-test-project --pack praxflow-embedded
-          test -f /tmp/praxflow-test-project/.agents/skills/develop-feature/SKILL.md
-          test -f /tmp/praxflow-test-project/.agents/skills/diagnose/SKILL.md
-          test -f /tmp/praxflow-test-project/.agents/skills/praxflow-embedded/SKILL.md
+          set -euo pipefail
+          for package in workflows/* skills/* packs/*; do
+            skills-ref validate "$package"
+          done
+
+  installer-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Exercise supported installer targets and failure modes
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/praxflow-installer"
+          rm -rf "$root"
+          mkdir -p "$root"
+
+          python3 scripts/install.py --target codex --scope project --dest "$root/codex" --pack praxflow-embedded
+          test -f "$root/codex/.agents/skills/develop-feature/SKILL.md"
+          test -f "$root/codex/.agents/skills/diagnose/SKILL.md"
+          test -f "$root/codex/.agents/skills/praxflow-embedded/SKILL.md"
+
+          python3 scripts/install.py --target claude --scope project --dest "$root/claude"
+          test -f "$root/claude/.claude/skills/trace/SKILL.md"
+
+          python3 scripts/install.py --target trae --scope project --dest "$root/trae"
+          test -f "$root/trae/.agents/skills/grill/SKILL.md"
+
+          python3 scripts/install.py --target generic --output-dir "$root/generic" --package survey
+          test -f "$root/generic/survey/SKILL.md"
+
+          HOME="$root/home" python3 scripts/install.py --target codex --scope user --package trace
+          test -f "$root/home/.agents/skills/trace/SKILL.md"
+
+          python3 scripts/install.py --target codex --scope project --dest "$root/dry" --package diagnose --dry-run
+          test ! -e "$root/dry/.agents/skills/diagnose"
+
+          python3 scripts/install.py --target generic --output-dir "$root/collision" --package survey
+          if python3 scripts/install.py --target generic --output-dir "$root/collision" --package survey; then
+            echo "collision test unexpectedly succeeded" >&2
+            exit 1
+          fi
+          printf 'modified\n' > "$root/collision/survey/local-note.txt"
+          python3 scripts/install.py --target generic --output-dir "$root/collision" --package survey --force
+          test ! -e "$root/collision/survey/local-note.txt"
+
+          if python3 scripts/install.py --target generic --output-dir "$root/unknown" --package does-not-exist; then
+            echo "unknown package test unexpectedly succeeded" >&2
+            exit 1
+          fi
+
+          before=$(sha256sum workflows/develop-feature/SKILL.md)
+          if python3 scripts/install.py --target generic --output-dir "$GITHUB_WORKSPACE/workflows" --package develop-feature --force; then
+            echo "canonical-source guard unexpectedly succeeded" >&2
+            exit 1
+          fi
+          after=$(sha256sum workflows/develop-feature/SKILL.md)
+          test "$before" = "$after"
