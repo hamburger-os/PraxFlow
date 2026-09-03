@@ -73,6 +73,14 @@ metadata:
 
 `name` must match the directory name.
 
+## Protocol changes
+
+Top-level `protocols/*.md` files are the maintainer source-of-truth for cross-cutting methodology. They are intentionally not installed as standalone packages; portable Workflows, Skills, and Packs embed the operational guidance they need.
+
+Because of that split, a Protocol-only change is incomplete when it changes runtime behavior. If a Protocol changes, update at least one affected installable package under `workflows/`, `skills/`, or `packs/` in the same PR. CI enforces this coarse-grained sync rule so the maintainer reference cannot silently drift away from distributed behavior.
+
+Purely editorial Protocol changes should normally avoid changing normative meaning. If an editorial change genuinely needs no package update, explain why in the PR and make the smallest package-side synchronization needed to keep the source-of-truth relationship explicit.
+
 ## Writing guidance
 
 Prefer instructions that change agent behavior:
@@ -109,7 +117,7 @@ Run:
 python3 scripts/validate.py
 ```
 
-For normative Agent Skills conformance, also use the upstream `skills-ref` validator when available.
+For normative Agent Skills conformance, also run the pinned/reference `skills-ref validate` check used by CI when package format or content changes. CI additionally exercises Python 3.10 compatibility, supported installer targets and failure modes, and Protocol/package synchronization.
 
 ## Compatibility changes
 
