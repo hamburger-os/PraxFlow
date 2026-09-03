@@ -19,18 +19,13 @@ Do not mechanically run every available check. Do not stop at a weak check when 
 
 The exact ladder is domain-specific, but evidence often becomes stronger as it moves from reasoning to executed behavior:
 
-```text
-static inspection
-    ↓
-syntax/type/lint checks
-    ↓
-focused unit test
-    ↓
-integration/build check
-    ↓
-representative runtime/environment check
-    ↓
-real target / production-like observation
+```mermaid
+flowchart TD
+    A[Static inspection] --> B[Syntax / type / lint checks]
+    B --> C[Focused unit test]
+    C --> D[Integration / build check]
+    D --> E[Representative runtime / environment check]
+    E --> F[Real target / production-like observation]
 ```
 
 This is not an absolute ranking. A focused property test may be stronger for a claim than a broad production smoke test. Choose the check that actually bears on the claim.
