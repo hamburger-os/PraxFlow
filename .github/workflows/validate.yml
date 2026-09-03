@@ -33,9 +33,35 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for package in workflows/* skills/* packs/*; do
+          for package in skills/*; do
             skills-ref validate "$package"
           done
+
+  distribution-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify standard skills discovery and installation
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/praxflow-distribution"
+          rm -rf "$root"
+          mkdir -p "$root"
+          cd "$root"
+          git init -q
+
+          npx -y skills@1.5.23 add "$GITHUB_WORKSPACE" \
+            --skill develop-feature \
+            --agent codex \
+            --copy \
+            --yes
+
+          test -f .agents/skills/develop-feature/SKILL.md
+          test ! -e .agents/skills/praxflow-embedded
 
   installer-smoke:
     runs-on: ubuntu-latest
@@ -86,12 +112,12 @@ jobs:
             exit 1
           fi
 
-          before=$(sha256sum workflows/develop-feature/SKILL.md)
-          if python3 scripts/install.py --target generic --output-dir "$GITHUB_WORKSPACE/workflows" --package develop-feature --force; then
+          before=$(sha256sum skills/develop-feature/SKILL.md)
+          if python3 scripts/install.py --target generic --output-dir "$GITHUB_WORKSPACE/skills" --package develop-feature --force; then
             echo "canonical-source guard unexpectedly succeeded" >&2
             exit 1
           fi
-          after=$(sha256sum workflows/develop-feature/SKILL.md)
+          after=$(sha256sum skills/develop-feature/SKILL.md)
           test "$before" = "$after"
 
   protocol-sync:
@@ -124,8 +150,8 @@ jobs:
           printf '%s\n' "$changed"
 
           if grep -Eq '^protocols/.*\.md$' <<<"$changed"; then
-            if ! grep -Eq '^(workflows|skills|packs)/' <<<"$changed"; then
-              echo "Protocol changes must update at least one installable package in workflows/, skills/, or packs/." >&2
+            if ! grep -Eq '^skills/' <<<"$changed"; then
+              echo "Protocol changes must update at least one installable package under skills/." >&2
               echo "Top-level Protocols are maintainer source-of-truth; portable packages must stay operationally aligned." >&2
               exit 1
             fi
@@ -136,6 +162,7 @@ jobs:
     if: ${{ always() }}
     needs:
       - validate
+      - distribution-smoke
       - installer-smoke
       - protocol-sync
     runs-on: ubuntu-latest
@@ -144,10 +171,12 @@ jobs:
         shell: bash
         env:
           VALIDATE_RESULT: ${{ needs.validate.result }}
+          DISTRIBUTION_RESULT: ${{ needs.distribution-smoke.result }}
           INSTALLER_RESULT: ${{ needs.installer-smoke.result }}
           PROTOCOL_SYNC_RESULT: ${{ needs.protocol-sync.result }}
         run: |
           set -euo pipefail
           test "$VALIDATE_RESULT" = "success"
+          test "$DISTRIBUTION_RESULT" = "success"
           test "$INSTALLER_RESULT" = "success"
           test "$PROTOCOL_SYNC_RESULT" = "success"
