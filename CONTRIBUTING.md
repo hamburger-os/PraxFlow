@@ -46,15 +46,15 @@ Do not include:
 - copies of Core Workflows;
 - model/token selection policy that only reflects one organization.
 
-## Agent Skills format
+## Agent Skills format and repository layout
 
-All installable packages live one directory below one of:
+All installable packages live exactly one directory below the single canonical distribution root:
 
 ```text
-workflows/
-skills/
-packs/
+skills/<package-name>/SKILL.md
 ```
+
+Do not create separate top-level `workflows/` or `packs/` source trees. Workflow / Skill / Pack is a PraxFlow conceptual classification, not a filesystem discovery rule.
 
 Each package must contain `SKILL.md` and follow the Agent Skills open specification.
 
@@ -71,13 +71,17 @@ metadata:
 ---
 ```
 
-`name` must match the directory name.
+`name` must match the directory name. `metadata.praxflow-type` must be one of `workflow`, `skill`, or `pack`.
+
+Keep package resources self-contained. Put on-demand supporting material in `references/`, executable helpers in `scripts/`, and static resources in `assets/`. Prefer shallow relative references from `SKILL.md`.
+
+The flat `skills/*/SKILL.md` catalog is deliberate: repository taxonomy belongs in metadata and catalog presentation, while installer discovery should stay on the lowest-common-denominator standard convention.
 
 ## Protocol changes
 
-Top-level `protocols/*.md` files are the maintainer source-of-truth for cross-cutting methodology. They are intentionally not installed as standalone packages; portable Workflows, Skills, and Packs embed the operational guidance they need.
+Top-level `protocols/*.md` files are the maintainer source-of-truth for cross-cutting methodology. They are intentionally not installed as standalone packages; portable packages under `skills/` embed the operational guidance they need.
 
-Because of that split, a Protocol-only change is incomplete when it changes runtime behavior. If a Protocol changes, update at least one affected installable package under `workflows/`, `skills/`, or `packs/` in the same PR. CI enforces this coarse-grained sync rule so the maintainer reference cannot silently drift away from distributed behavior.
+Because of that split, a Protocol-only runtime change is incomplete. If a Protocol changes, update at least one affected installable package under `skills/` in the same PR. CI enforces this coarse-grained sync rule so the maintainer reference cannot silently drift away from distributed behavior.
 
 Purely editorial Protocol changes should normally avoid changing normative meaning. If an editorial change genuinely needs no package update, explain why in the PR and make the smallest package-side synchronization needed to keep the source-of-truth relationship explicit.
 
@@ -117,13 +121,15 @@ Run:
 python3 scripts/validate.py
 ```
 
-For normative Agent Skills conformance, also run the pinned/reference `skills-ref validate` check used by CI when package format or content changes. CI additionally exercises Python 3.10 compatibility, supported installer targets and failure modes, and Protocol/package synchronization.
+For normative Agent Skills conformance, also run the pinned/reference `skills-ref validate` check used by CI when package format or content changes. CI additionally exercises Python 3.10 compatibility, the built-in installer, external standard-catalog installation, and Protocol/package synchronization.
+
+A package-format change should be considered incomplete if PraxFlow's own validator passes but a standards-compatible installer cannot discover `skills/<name>/SKILL.md` without a custom deep-search flag.
 
 ## Compatibility changes
 
 Client-specific installation paths and extensions belong under `adapters/` and `scripts/install.py`.
 
-Verify current vendor documentation before changing compatibility behavior. Do not turn vendor-specific extensions into Core requirements.
+Verify current vendor documentation before changing compatibility behavior. Do not turn vendor-specific extensions into Core requirements. Optional ecosystem metadata such as `skills.sh.json` may improve presentation, but canonical package identity must remain fully derivable from the standard `skills/*/SKILL.md` tree.
 
 ## Pull request scope
 

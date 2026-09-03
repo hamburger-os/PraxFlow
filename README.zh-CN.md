@@ -52,7 +52,41 @@ PraxFlow **不是**新的 Agent Runtime、不是新的 Skill 格式，也不是�
 
 ## 快速开始
 
-需要 **Python 3.10 或更高版本**。
+最方便的安装方式是直接使用开放的 Agent Skills 生态，无需先 Clone 仓库，也不要求本地安装 Python：
+
+```bash
+npx skills@latest add hamburger-os/PraxFlow
+```
+
+安装器会让你选择需要的 Workflow、Cognitive Skill、可选 Domain Pack，以及希望安装到哪些 Coding Agent。
+
+已经明确知道要安装哪些 package 时，可以直接非交互安装：
+
+```bash
+npx skills@latest add hamburger-os/PraxFlow \
+  --skill develop-feature \
+  --skill diagnose \
+  --agent codex \
+  --yes
+```
+
+GitHub CLI 也可以直接发现 PraxFlow 的标准 Skill Catalog：
+
+```bash
+gh skill install hamburger-os/PraxFlow
+```
+
+PraxFlow 所有可安装 package 都采用标准的扁平目录：
+
+```text
+skills/<package-name>/SKILL.md
+```
+
+Workflow、Cognitive Skill、Domain Pack 的区别记录在 `metadata.praxflow-type` 中，而不是编码进目录深度。这样仓库本身就是标准分发源，不需要 PraxFlow 专用的 discovery 规则，也不需要 `--full-depth`。
+
+### 高级 / 确定性安装器
+
+仓库仍保留 Python Installer，用于确定性安装 Core、显式加载 Domain Pack、自定义输出目录、Dry Run 和 PraxFlow 本地开发。该方式需要 **Python 3.10 或更高版本**：
 
 ```bash
 git clone https://github.com/hamburger-os/PraxFlow.git
@@ -69,17 +103,7 @@ python3 scripts/install.py \
   --pack praxflow-embedded
 ```
 
-安装器同时支持：
-
-```bash
-# Claude Code
-python3 scripts/install.py --target claude --scope project --dest /path/to/project
-
-# TRAE
-python3 scripts/install.py --target trae --scope project --dest /path/to/project
-```
-
-当前项目级发现目录：
+内置 Installer 当前使用的项目级发现目录：
 
 | 客户端 | Discovery Path |
 | --- | --- |
@@ -87,7 +111,7 @@ python3 scripts/install.py --target trae --scope project --dest /path/to/project
 | TRAE | `.agents/skills/` |
 | Claude Code | `.claude/skills/` |
 
-具体适配方式和手工安装方法见 [`adapters/README.md`](adapters/README.md)。
+具体分发方式、用户级安装和手工安装说明见 [`adapters/README.md`](adapters/README.md)。
 
 ## 核心模型
 
@@ -117,9 +141,9 @@ flowchart TD
 | **Protocol** | 横跨 Workflow / Skill 的行为与信息规则，例如证据、决策、变更范围、验证、长期知识。 |
 | **Capability** | 当前项目或环境提供的具体执行能力，例如 build、test、deploy、flash、browser、serial、database。 |
 
-Agent Skills 是 PraxFlow 的**分发格式**。PraxFlow 对 Workflow / Skill 的区分属于方法论概念层；在实际分发时，两者都可以被包装成标准兼容的 `SKILL.md` 目录。
+Agent Skills 是 PraxFlow 的**分发格式**。PraxFlow 对 Workflow / Skill 的区分属于方法论概念层；所有可安装单元都以标准兼容的 `SKILL.md` package 形式放在 [`skills/`](skills/) 下。
 
-顶层 [`protocols/`](protocols/) 文件是维护者使用的规范性方法论参考，并不是独立安装的 Agent Skill package。可安装的 Workflow / Skill 会在自己的 `SKILL.md` 中携带运行时真正需要的 Protocol 行为，因此修改 Protocol 时必须在同一个变更中同步更新受影响的 packages。
+顶层 [`protocols/`](protocols/) 文件是维护者使用的规范性方法论参考，并不是独立安装的 Agent Skill package。可安装 package 会在自己的 `SKILL.md` 中携带运行时真正需要的 Protocol 行为，因此修改 Protocol 时必须在同一个变更中同步更新受影响的 package。
 
 ## v0.1 Core
 
@@ -143,10 +167,10 @@ flowchart LR
 
 | Workflow | 作用 |
 | --- | --- |
-| [`develop-feature`](workflows/develop-feature/) | 从目标走向受控设计、实现、Review 与比例化验证。 |
-| [`fix-bug`](workflows/fix-bug/) | 从现象走向期望行为、因果诊断、受控修复和回归验证。 |
-| [`understand-project`](workflows/understand-project/) | 只建立当前理解目标真正需要的、有证据支撑的项目模型。 |
-| [`review-change`](workflows/review-change/) | 根据意图、实际范围、契约、证据和领域风险输出高信噪比 Review。 |
+| [`develop-feature`](skills/develop-feature/) | 从目标走向受控设计、实现、Review 与比例化验证。 |
+| [`fix-bug`](skills/fix-bug/) | 从现象走向期望行为、因果诊断、受控修复和回归验证。 |
+| [`understand-project`](skills/understand-project/) | 只建立当前理解目标真正需要的、有证据支撑的项目模型。 |
+| [`review-change`](skills/review-change/) | 根据意图、实际范围、契约、证据和领域风险输出高信噪比 Review。 |
 
 ### Cognitive Skills
 
@@ -174,7 +198,7 @@ flowchart LR
 
 嵌入式开发非常适合作为 PraxFlow 的第一块压力测试场：硬件事实受外部规范约束，并发、生命周期、时序等问题影响巨大；Build / Deploy 是真实操作；最终目标设备会给出模型推理无法替代的物理世界证据。
 
-[`packs/praxflow-embedded/`](packs/praxflow-embedded/) 在不复制 Core Workflow 的前提下增加：
+[`praxflow-embedded`](skills/praxflow-embedded/) 在不复制 Core Workflow 的前提下增加：
 
 - 面向 Datasheet、Errata、正式标准、SDK 文档、Reference Implementation 的 Evidence Policy；
 - ISR/Thread 边界、DMA/Cache 一致性、Alignment、ABI、Memory Lifetime、Timing、Error Path 等嵌入式 Review 关注点；
@@ -231,18 +255,18 @@ PraxFlow 自己也应该遵守它要求 Agent 遵守的方法：
 
 ```text
 PraxFlow/
-├── workflows/      # 端到端 Workflow packages
-├── skills/         # 可复用 Cognitive Skills
-├── protocols/      # 横切工程方法
-├── packs/          # Domain Packs；embedded 为第一参考实现
+├── skills/         # 唯一 canonical 可安装目录：Workflows、Cognitive Skills、Domain Packs
+├── protocols/      # 维护者使用的横切方法论参考
 ├── evals/          # 方法论 Eval 规范与场景
 ├── case-studies/   # 真实工程案例
-├── adapters/       # 客户端安装适配说明
+├── adapters/       # 客户端分发与安装说明
 ├── examples/       # Project Capability 示例
 ├── assets/         # Brand / Social assets
-├── scripts/        # Installer / Validator
+├── scripts/        # 确定性 Installer / Validator
 └── docs/           # Concepts / Roadmap / Release / Brand
 ```
+
+每个可安装 package 都必须正好位于 `skills/` 下一层。概念分类属于 metadata/catalog 信息，而不是目录语义。
 
 ## 校验
 
@@ -250,35 +274,35 @@ PraxFlow/
 python3 scripts/validate.py
 ```
 
-CI 会在 Python 3.10 和最新稳定版 Python 上运行 PraxFlow structural validator，使用固定版本的 Agent Skills reference validator 检查全部 package，并覆盖受支持 target 的安装路径与主要失败模式。
+CI 会在 Python 3.10 和最新稳定版 Python 上运行 PraxFlow structural validator，使用固定版本的 Agent Skills reference validator 检查全部 `skills/*` package，覆盖内置 Installer，并通过外部 Agent Skills CLI 做真实安装 smoke test。
 
-本地如需按 Agent Skills 规范进行验证，也可以使用 reference validator：`skills-ref validate`。
+本地也可以使用 Agent Skills reference validator（`skills-ref validate`）进行规范校验。
 
 ## 项目状态
 
-PraxFlow 当前处于 **pre-1.0** 阶段，并且刻意保持 opinionated。
+PraxFlow 当前仍是 **pre-1.0**，并且刻意保持明确的工程取向。v0.1 是可测试基线，不是冻结标准。
 
-v0.1 是一个可以被真实工程任务验证的基线，而不是已经冻结的新标准。当前最重要的工作，是把四个 Core Workflow 放到真实 Feature、Bug、陌生工程理解和 Code Review 中进行压力测试，并根据真实失败去修改甚至删除抽象。
-
-详见 [`docs/roadmap.md`](docs/roadmap.md)。
+当前重点是让四个 Core Workflow 经历真实工程任务，并根据观察到的失败继续精炼——必要时删除——现有抽象。详见 [`docs/roadmap.md`](docs/roadmap.md)。
 
 ## 贡献与社区
 
-欢迎贡献，尤其欢迎带有真实使用证据的改进。
+欢迎贡献，尤其欢迎附带真实使用证据的贡献。
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 贡献方式与抽象准入标准；
-- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) —— 社区行为规范；
-- [`SECURITY.md`](SECURITY.md) —— 安全漏洞报告方式；
-- [`CHANGELOG.md`](CHANGELOG.md) —— 项目变化记录。
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 贡献与抽象准入标准。
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) —— 社区行为规范。
+- [`SECURITY.md`](SECURITY.md) —— 安全问题报告方式。
+- [`CHANGELOG.md`](CHANGELOG.md) —— 项目变更历史。
 
-在提出新的 Core Skill 之前，请先问：它是否真的是可以跨 Workflow 复用的独立认知方法，还是只是一个强 Agent 原本就会执行的普通动词？
+在提出新的 Core Skill 前，先判断它是否真的是可复用的认知方法，而不是“一个有能力的 Agent 本来就会执行的普通动词”。
 
 ## 兼容性参考
 
-- [Agent Skills 开放规范](https://agentskills.io/specification)
+- [Agent Skills open specification](https://agentskills.io/specification)
+- [Agent Skills CLI](https://github.com/vercel-labs/skills)
+- [GitHub CLI Agent Skills](https://cli.github.com/manual/gh_skill)
 - [Claude Code Skills](https://code.claude.com/docs/en/skills)
 - [OpenAI Skills / Codex](https://learn.chatgpt.com/docs/build-skills)
-- [TRAE Changelog](https://www.trae.ai/changelog)
+- [TRAE changelog](https://www.trae.ai/changelog)
 
 ## License
 

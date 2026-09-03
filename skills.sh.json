@@ -1,0 +1,34 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Workflows",
+      "description": "End-to-end PraxFlow engineering workflows for common software engineering goals.",
+      "skills": [
+        "develop-feature",
+        "fix-bug",
+        "understand-project",
+        "review-change"
+      ]
+    },
+    {
+      "title": "Cognitive Skills",
+      "description": "Reusable evidence-first reasoning methods shared across PraxFlow workflows.",
+      "skills": [
+        "survey",
+        "trace",
+        "grill",
+        "diagnose",
+        "plan-change"
+      ]
+    },
+    {
+      "title": "Domain Packs",
+      "description": "Optional domain-specific enrichment packages that extend Core without duplicating it.",
+      "skills": [
+        "praxflow-embedded"
+      ]
+    }
+  ]
+}
