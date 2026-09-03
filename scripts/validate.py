@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = ROOT / "skills"
+CATALOG_PATH = ROOT / "skills.sh.json"
 ALLOWED_PRAXFLOW_TYPES = {"workflow", "skill", "pack"}
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 REFERENCE_RE = re.compile(r"(?:`|\()((?:references|scripts|assets)/[^`)\s]+)")
@@ -143,6 +145,47 @@ def validate_package(package: Package) -> tuple[list[str], list[str]]:
     return [f"{rel}: {e}" for e in errors], [f"{rel}: {w}" for w in warnings]
 
 
+def validate_catalog(package_names: set[str]) -> list[str]:
+    """Keep optional presentation metadata synchronized with canonical packages."""
+    if not CATALOG_PATH.exists():
+        return ["skills.sh.json is missing"]
+
+    try:
+        catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"skills.sh.json is invalid: {exc}"]
+
+    groupings = catalog.get("groupings")
+    if not isinstance(groupings, list):
+        return ["skills.sh.json: groupings must be a list"]
+
+    listed: list[str] = []
+    errors: list[str] = []
+    for index, grouping in enumerate(groupings):
+        if not isinstance(grouping, dict):
+            errors.append(f"skills.sh.json: grouping {index} must be an object")
+            continue
+        skills = grouping.get("skills")
+        if not isinstance(skills, list) or not all(isinstance(name, str) for name in skills):
+            errors.append(f"skills.sh.json: grouping {index} skills must be a string list")
+            continue
+        listed.extend(skills)
+
+    duplicates = sorted({name for name in listed if listed.count(name) > 1})
+    if duplicates:
+        errors.append("skills.sh.json contains duplicate packages: " + ", ".join(duplicates))
+
+    listed_set = set(listed)
+    unknown = sorted(listed_set - package_names)
+    missing = sorted(package_names - listed_set)
+    if unknown:
+        errors.append("skills.sh.json references unknown packages: " + ", ".join(unknown))
+    if missing:
+        errors.append("skills.sh.json omits packages: " + ", ".join(missing))
+
+    return errors
+
+
 def validate_all(packages: Iterable[Package]) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -184,6 +227,7 @@ def validate_all(packages: Iterable[Package]) -> tuple[list[str], list[str]]:
     if missing:
         errors.append("missing expected v0.1 packages: " + ", ".join(missing))
 
+    errors.extend(validate_catalog(set(names)))
     return errors, warnings
 
 
