@@ -23,7 +23,8 @@ The project is pre-1.0. Until the first tagged release, the changelog tracks the
 - Recommended GitHub repository metadata and protection settings in `docs/repository-settings.md`.
 - `SECURITY.md`, `CODE_OF_CONDUCT.md`, Pull Request template, and structured Issue Forms.
 - `.editorconfig` and `.gitignore` repository hygiene files.
-- CI coverage for the Python 3.10 runtime floor, pinned Agent Skills reference validation, and cross-target installer smoke tests.
+- CI coverage for the Python 3.10 runtime floor, pinned Agent Skills reference validation, cross-target installer smoke tests, and Protocol/package synchronization.
+- A stable `Validate PraxFlow` aggregate CI gate suitable for branch protection.
 
 ### Changed
 
@@ -36,6 +37,7 @@ The project is pre-1.0. Until the first tagged release, the changelog tracks the
 - Reduced README hero repetition and corrected the banner feedback-loop/pill overlap.
 - Hardened forced installation by refusing canonical source directories and staging replacement copies before removing an existing installation.
 - Documented Python 3.10+ as the supported tooling runtime.
+- Clarified that OpenAI plugin packaging is a client-specific reusable distribution layer, while canonical PraxFlow packages remain portable Agent Skills sources.
 
 ### Design notes
 
